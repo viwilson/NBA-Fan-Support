@@ -1,22 +1,31 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
 #Reading in dataset
-NBARel <- read.csv("/Users/Victor/Desktop/Senior Project/RelativeNBATrends.csv", header = TRUE)
+#NBARel <- read.csv("/Users/Victor/Desktop/Senior Project/RelativeNBATrends.csv", header = TRUE)
+NBARel <- read.csv("./RelativeNBATrends.csv", header = TRUE)
 
 #Reshaping data from wide format to long format
-library(tidyr)
+library(tidyverse)
+library(lubridate)
 NBATeams <- gather(NBARel, Team, Popularity, AtlantaHawks:WashingtonWizards, factor_key=TRUE)
+names(NBATeams)[1] <- "Date"
 
 #Creating new variable indicating month of year for each observation
-MonthNum2 <- substr(as.character(NBATeams$Month), 6,7)
-NBATeams$MonthNum <- MonthNum2
+# MonthNum2 <- substr(as.character(NBATeams$Month), 6,7)
+# NBATeams$MonthNum <- MonthNum2
+
+# Make Month a datetime object
+NBATeams$Date <- parse_date_time(NBATeams$Date, orders = "ym")
+NBATeams$MonthNum <- month(NBATeams$Date)
 
 #Replacing all instances of Popularity scores of "<1" with 0
-NBATeams$Popularity<-gsub("<1","0",NBATeams$Popularity)
+NBATeams$Popularity<- str_replace(NBATeams$Popularity, "<1","0")
 
 #Setting Popularity variable to be numeric
 NBATeams$Popularity <- as.numeric(NBATeams$Popularity)
@@ -26,21 +35,21 @@ NBATeams$Popularity <- as.numeric(NBATeams$Popularity)
 
 ```{r}
 #Calculating mean for each NBA team
-aggregate(Popularity ~ Team, NBATeams, mean)
+aggregate(Popularity ~ Team, NBATeams, mean) %>% arrange(desc(Popularity))
 ```
 From viewing the mean popularity score for each team, we see that the teams with the highest average Popularity scores since 2004 are the Los Angeles Lakers, Golden State Warriors, and Cleveland Cavaliers. This makes intuitive sense because the Lakers are consistently one of the most popular teams in the league, and have one of the largest fanbases. The Cleveland Cavaliers and Golden State Warriors have also been very successful teams lately, having played each other in the NBA Finals in the last 4 years, from 2015-2018. 
 
 ```{r}
 #Boxplot of Popularity score by each month
-ggplot(NBATeams, aes(MonthNum, Popularity)) + geom_boxplot()
+ggplot(NBATeams, aes(group = month(Date), y = log(Popularity))) + geom_boxplot()
 ```
 In the boxplot above, we can see that the median Popularity scores for each month are all very similar, although April appears to have a slightly higher median popularity score, which makes sense this is tradtionally the month in which the NBA Playoffs begin. June also appears to have the most outliers and contains the highest Popularity score across all observations, which also makes sense because this typically when the NBA Finals are held, so we expect the two teams that are playing in the Finals to have a very large increase in search traffic which results in a much higher Popularity score .
+
 
 ```{r}
 #Scatterplot with mean and median Popularity score by month
 #Red = Mean , Blue = Median
 
-library(tidyverse)
 NBATeams %>%
   group_by(MonthNum) %>%
   summarize_at(vars(Popularity), funs(mean, median)) %>%
@@ -50,3 +59,30 @@ NBATeams %>%
  In this plot, the red dots represent the mean popularity score across
 all 30 NBA teams for each month, whereas the blue dots represent the 
 median popularity score. We can see that for each month except for September  the mean Google Trends search popularity score is lower than the median. This is to be expected, since the data is skewed to the right, with the few outlying popularity scores pulling up the mean. This difference between the mean and median is even more pronounced in the months of April, May, and June. This also makes sense because this is during the NBA Playoff season, and we expect the teams that make the playoffs to have a larke spike in their Popularity score during the time in which they are competing in the playoffs. 
+
+```{r}
+NBATeams %>% 
+  filter(Team %in% c("BostonCeltics", "LosAngelesLakers")) %>%
+  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
+
+NBATeams %>% 
+  filter(Date %within% interval("2018-04-01", "2018-06-01")) %>%
+  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
+```
+
+```{r}
+basic_model <- lm(Popularity ~ factor(MonthNum) + Team, data = NBATeams)
+
+summary(basic_model)
+
+library(modelr)
+NBATeams <- NBATeams %>% add_predictions(basic_model)
+
+NBATeams %>% 
+  filter(Team == "LosAngelesLakers") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") 
+
+```
+

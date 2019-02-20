@@ -8,7 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-NBATrendsData <- read.csv("./NBA-Fan-Support/NBATrendsData.csv")
+NBATrendsData <- read.csv("./NBATrendsData.csv")
 library(lubridate)
 library(tidyverse)
 
@@ -87,7 +87,7 @@ NBATrendsData %>%
 
 ```
 
-## Download all teams relative to all-time max (Celtics?)
+## Download all teams relative to all-time max (Celtics?) CHECK
 
 Datasets:
 - Dates of playoffs
@@ -96,3 +96,11 @@ Datasets:
 - How far each team went in playoffs each year
 - Yearly reg season records
 - ? key events or headlines?
+
+
+```{r}
+basic_model <- lm(Popularity ~ month(Date), data = NBATrendsData)
+
+summary(basic_model)
+```
+
