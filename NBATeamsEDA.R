@@ -33,10 +33,10 @@ NBATrendsData %>%
   geom_point(aes(x = Month, y = median), col = "blue") 
 
 # In this plot, the red dots represent the mean popularity score across
-# all 30 NBA teams for each month, whereas the blue dots represent the 
+# all 30 NBA teams for each month, whereas the blue dots represent the
 # median popularity score. We can see that for each month the mean
 # Google Trends search popularity score is lower than the median. This is
-# to be expected, since the data is skewed to the right, with the few 
+# to be expected, since the data is skewed to the right, with the few
 # outlying popularity scores pulling up the mean. This difference between
 # the mean and median is even more pronounced in the months of April,
 # May, and June. This also makes sense because this during the NBA Playoff
@@ -60,7 +60,7 @@ NBATrendsData %>%
 # Trailblazers, Los Angeles Lakers, and Chicago Bulls are not far behind
 # either. The teams that appear to have the lowest mean and median
 # popularity scores are the Toronto Raptors, Oklahoma City Thunder, and
-# Houston Rockets. 
+# Houston Rockets.
 
 
 with( NBATrendsData[ NBATrendsData$Team=="AtlantaHawks",  ] , 
