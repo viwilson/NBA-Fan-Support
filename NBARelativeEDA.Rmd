@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+#Reading in dataset
+NBARel <- read.csv("/Users/Victor/Desktop/Senior Project/RelativeNBATrends.csv", header = TRUE)
+
+#Reshaping data from wide format to long format
+library(tidyr)
+NBATeams <- gather(NBARel, Team, Popularity, AtlantaHawks:WashingtonWizards, factor_key=TRUE)
+
+#Creating new variable indicating month of year for each observation
+MonthNum2 <- substr(as.character(NBATeams$Month), 6,7)
+NBATeams$MonthNum <- MonthNum2
+
+#Replacing all instances of Popularity scores of "<1" with 0
+NBATeams$Popularity<-gsub("<1","0",NBATeams$Popularity)
+
+#Setting Popularity variable to be numeric
+NBATeams$Popularity <- as.numeric(NBATeams$Popularity)
+
+```
+
+
+```{r}
+#Calculating mean for each NBA team
+aggregate(Popularity ~ Team, NBATeams, mean)
+```
+From viewing the mean popularity score for each team, we see that the teams with the highest average Popularity scores since 2004 are the Los Angeles Lakers, Golden State Warriors, and Cleveland Cavaliers. This makes intuitive sense because the Lakers are consistently one of the most popular teams in the league, and have one of the largest fanbases. The Cleveland Cavaliers and Golden State Warriors have also been very successful teams lately, having played each other in the NBA Finals in the last 4 years, from 2015-2018. 
+
+```{r}
+#Boxplot of Popularity score by each month
+ggplot(NBATeams, aes(MonthNum, Popularity)) + geom_boxplot()
+```
+In the boxplot above, we can see that the median Popularity scores for each month are all very similar, although April appears to have a slightly higher median popularity score, which makes sense this is tradtionally the month in which the NBA Playoffs begin. June also appears to have the most outliers and contains the highest Popularity score across all observations, which also makes sense because this typically when the NBA Finals are held, so we expect the two teams that are playing in the Finals to have a very large increase in search traffic which results in a much higher Popularity score .
+
+```{r}
+#Scatterplot with mean and median Popularity score by month
+#Red = Mean , Blue = Median
+
+library(tidyverse)
+NBATeams %>%
+  group_by(MonthNum) %>%
+  summarize_at(vars(Popularity), funs(mean, median)) %>%
+  ggplot() + geom_point(aes(x = MonthNum, y = mean), col = "red") +
+  geom_point(aes(x = MonthNum, y = median), col = "blue") 
+```
+ In this plot, the red dots represent the mean popularity score across
+all 30 NBA teams for each month, whereas the blue dots represent the 
+median popularity score. We can see that for each month except for September  the mean Google Trends search popularity score is lower than the median. This is to be expected, since the data is skewed to the right, with the few outlying popularity scores pulling up the mean. This difference between the mean and median is even more pronounced in the months of April, May, and June. This also makes sense because this is during the NBA Playoff season, and we expect the teams that make the playoffs to have a larke spike in their Popularity score during the time in which they are competing in the playoffs. 
