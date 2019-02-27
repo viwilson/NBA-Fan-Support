@@ -293,6 +293,8 @@ NBATeams <- NBATeams %>% mutate(
 ### Make sure the "Team" variables match
 
 NBATeams <- left_join(NBATeams, New_Data, by = c("Season", "Team"))
+
+# hi eric
 ```
 
 
