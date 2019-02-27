@@ -274,3 +274,26 @@ scores during these months for nearly half of the teams, and underpredicts
 popularity scores during these months for the other half of the teams. This
 indicates that we perhaps need to include another variable in our model that measures performance during the regular season or performance in the playoffs.
 
+
+```{r}
+basic_model <- lm(Popularity ~  Team + factor(MonthNum):(Made.Playoffs + Record + Finish + Round.of.Playoffs), data = NBATeams)
+```
+
+```{r}
+NBATeams <- NBATeams %>% mutate(
+  Season = case_when(
+    month(Date) >= 10 & day(Date) > 15 ~ year(Date),  ## nuance cutoff
+    TRUE ~ year(Date) - 1
+  )
+)
+
+## hypothetical New_Data
+
+### Think about: teams that change names
+### Make sure the "Team" variables match
+
+NBATeams <- left_join(NBATeams, New_Data, by = c("Season", "Team"))
+```
+
+
+
