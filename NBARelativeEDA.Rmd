@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r}
-#Reading in dataset
+#Reading in dataset hi
 #NBARel <- read.csv("/Users/Victor/Desktop/Senior Project/RelativeNBATrends.csv", header = TRUE)
 NBARel <- read.csv("./RelativeNBATrends.csv", header = TRUE)
 
