@@ -44,18 +44,17 @@ NBATrendsData %>%
   ggplot() + geom_point(aes(x = Month, y = mean), col = "red") +
   geom_point(aes(x = Month, y = median), col = "blue") 
 ```
-
-In this plot, the red dots represent the mean popularity score across
-all 30 NBA teams for each month, whereas the blue dots represent the
-median popularity score. We can see that for each month the mean
-Google Trends search popularity score is lower than the median. This is
-to be expected, since the data is skewed to the right, with the few
-outlying popularity scores pulling up the mean. This difference between
-the mean and median is even more pronounced in the months of April,
-May, and June. This also makes sense because this during the NBA Playoff
-season, and the popularity scores for the teams that make the playoff
-skyrocket to near 100, causing the median to be largely inflated.
-
+In this plot, the red dots represent the mean popularity score across all
+30 NBA teams for each month, whereas the blue dots represent the median
+popularity score. We can see that for each month the mean Google Trends
+search popularity score is lower than the median. This is to be expected,
+since the data is skewed to the right, with a few outlying popularity
+scores pulling up the mean. This difference between between the mean and
+median is even more pronounced in the months of April, May, and June. 
+This also makes sense because these months are typically when the NBA
+Playoffs are ongoing, and many of the popularity scores for the teams
+that are in the playoffs skyrocket to near 100, which causes the mean
+to be largely inflated. 
 
 ```{r}
 NBATrendsData %>%

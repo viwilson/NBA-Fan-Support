@@ -37,12 +37,21 @@ NBATeams$Popularity <- as.numeric(NBATeams$Popularity)
 #Calculating mean for each NBA team
 aggregate(Popularity ~ Team, NBATeams, mean) %>% arrange(desc(Popularity))
 ```
-From viewing the mean popularity score for each team, we see that the teams with the highest average Popularity scores since 2004 are the Los Angeles Lakers, Golden State Warriors, and Cleveland Cavaliers. This makes intuitive sense because the Lakers are consistently one of the most popular teams in the league, and have one of the largest fanbases. The Cleveland Cavaliers and Golden State Warriors have also been very successful teams lately, having played each other in the NBA Finals in the last 4 years, from 2015-2018. 
+From viewing the mean popuarlity score for each team, we see that the teams with
+the highest average popularity scores since 2004 are the Los Angeles Lakers,
+Golden State Warriors, and Cleveland Cavaliers. This makes intuitive sense 
+because the Lakers are consistently one of the most popular teams in the league
+and have one of the largest fanbases. The Cleveland Cavaliers and Golden State Warriors have also been very succesful teams lately, having played each other
+in the NBA Finals the past 4 years, from 2015-2018. 
 
 ```{r}
 #Boxplot of Popularity score by each month
 ggplot(NBATeams, aes(group = month(Date), y = log(Popularity))) + geom_boxplot()
 ```
+Shown above is a boxplot of the log Popularity scores for each month. 
+
+
+
 In the boxplot above, we can see that the median Popularity scores for each month are all very similar, although April appears to have a slightly higher median popularity score, which makes sense this is tradtionally the month in which the NBA Playoffs begin. June also appears to have the most outliers and contains the highest Popularity score across all observations, which also makes sense because this typically when the NBA Finals are held, so we expect the two teams that are playing in the Finals to have a very large increase in search traffic which results in a much higher Popularity score .
 
 
@@ -56,19 +65,58 @@ NBATeams %>%
   ggplot() + geom_point(aes(x = MonthNum, y = mean), col = "red") +
   geom_point(aes(x = MonthNum, y = median), col = "blue") 
 ```
- In this plot, the red dots represent the mean popularity score across
-all 30 NBA teams for each month, whereas the blue dots represent the 
-median popularity score. We can see that for each month except for September  the mean Google Trends search popularity score is lower than the median. This is to be expected, since the data is skewed to the right, with the few outlying popularity scores pulling up the mean. This difference between the mean and median is even more pronounced in the months of April, May, and June. This also makes sense because this is during the NBA Playoff season, and we expect the teams that make the playoffs to have a larke spike in their Popularity score during the time in which they are competing in the playoffs. 
-
+In this plot, the red dots represent the mean popularity score across all 30 
+NBA teams for each month, whereas the blue dots represent the median popularity
+score. We can see that for each month except for September, the mean Google
+Trends search popularity score is lower than the median. This is to be expected,
+since the data is skewed to the right, with the few outlying popularity scores
+pulling up the mean. This difference between the mean and the median and median
+is even more pronounced in the months of April, May, and June. This also makes
+sense becauses this is during the NBA Playoff season, and we expect the teams
+that make the playoffs to have a large spike in their Popularity score during
+the time in which they are competing in the playoffs. 
 ```{r}
 NBATeams %>% 
-  filter(Team %in% c("BostonCeltics", "LosAngelesLakers")) %>%
+  filter(Team %in% c("ClevelandCavaliers", "GoldenStateWarriors")) %>%
   ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
 
 NBATeams %>% 
   filter(Date %within% interval("2018-04-01", "2018-06-01")) %>%
   ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
+
+NBATeams %>% 
+  filter(Date %within% interval("2014-11-01", "2018-08-01") & Team %in% c("ClevelandCavaliers", "LosAngelesLakers")) %>%
+  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
+
+
+
+NBATeams %>% 
+  filter(Date %within% interval("2018-04-01", "2018-07-01")) %>%
+  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
 ```
+In this first plot, we are comparing the popularity scores for the Cleveland
+Cavaliers and the Golden State Warriors, across all time points. We can see that
+the popularity scores for both teams never exceeded about 15 until 2015. In 2015
+we see a large increase in the popularity score for the Golden State Warriors.
+We also see large spikes in the popularity scores for both teams in what appears
+to be the middle of the years for 2016, 2017, and 2018. The Cavaliers and the 
+Warriors played each other in the NBA Finals for all 3 of these years, so this
+is likely the explanation for the large increase in popularity for these teams. 
+
+
+
+In this second plot, we are examining the popularity scores for all 30 teams
+from April 2018 to June 2018. These dates encompass the duration of the 2018
+playoffs, so we are hoping this plot can help give us an idea of what teams 
+performed well in the NBA playoffs this year. Here we can see that the Cleveland
+Cavaliers had the highest popularity score for the entirety of the playoffs,
+with the Golden State Warriors following closely behind. This makes sense again
+because these two teams ended playing each other in the NBA Finals yet again.
+We also see a large cluster of teams near the bottm that have popularity scores
+that are hardly ever above 10 for these months. These all appear to be teams
+that did not make the NBA Finals in 2018. Thus, this graph seems to suggest that
+teams that perform well during the NBA playoffs tend to receive a large increase
+in search popularity. 
 
 ```{r}
 basic_model <- lm(Popularity ~ factor(MonthNum) + Team, data = NBATeams)
@@ -79,10 +127,150 @@ library(modelr)
 NBATeams <- NBATeams %>% add_predictions(basic_model)
 
 NBATeams %>% 
-  filter(Team == "LosAngelesLakers") %>%
+  filter(Team == "HoustonRockets") %>%
   group_by(MonthNum) %>%
   summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
-  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") 
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red")  + 
+  ggtitle("Houston Rockets Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "GoldenStateWarriors") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("GS Warriors Actual vs. Predicted Popularity")
+
+
+NBATeams %>% 
+  filter(Team == "PortlandTrailBlazers") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Portland TrailBlazers Actual vs. Predicted Popularity")
+
+
+NBATeams %>% 
+  filter(Team == "OklahomaCityThunder") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("OKC Thunder Actual vs. Predicted Popularity")
+
+
+NBATeams %>% 
+  filter(Team == "UtahJazz") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("UtahJazz Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "NewOrleansPelicans") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("NO Pelicans Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "SanAntonioSpurs") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("SA Spurs Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "MinnesotaTimberwolves") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Minnesota Timberwolves Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "TorontoRaptors") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Toronto Raptors Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "BostonCeltics") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Boston Celtics Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "Philadelphia76ers") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Philadelphia 76ers Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "ClevelandCavaliers") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Cleveland Cavaliers Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "IndianaPacers") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Indiana Pacers Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "MiamiHeat") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("MiamiHeat Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "MilwaukeeBucks") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Milwaukee Bucks Actual vs. Predicted Popularity")
+
+NBATeams %>% 
+  filter(Team == "WashingtonWizards") %>%
+  group_by(MonthNum) %>%
+  summarize(avg_pop = mean(Popularity), pred = mean(pred)) %>%
+  ggplot() + geom_line(aes(x = MonthNum, y = avg_pop)) + geom_line(aes(x = MonthNum, y = pred), col = "red") + 
+  ggtitle("Washington Wizards Actual vs. Predicted Popularity")
 
 ```
+Here, we have fit a very basic linear model that attempts to predict popularity
+score, using month of the year and team as predictors. From the resuts of this
+model, we see that the months of May, June, July, August, September, and October
+are all significant predictors of popularity score. The coefficients for the
+months of May and June are both positive, which indicates that these months are
+associated with an increase in popularity score. This makes sense because the
+months of May and June are when the NBA Playoffs come to a close, and the NBA
+Finals typically begin towards the end of May. Contrastly, the months of July,
+August, September, and October all have negative coefficients, indicating 
+that these months are associated with decreases in popularity score. This also
+makes sense because these months all encompass the NBA offseason, in which no
+NBA games are played. There is not much going on in the NBA during these times
+aside from free agency and training camps, so we expect a decrese in search
+popularity throughout the NBA during these months. 
+
+
+I have also plotted the popularity scores aross the months of the year for all
+16 teams that made the NBA Playoffs in 2018. I then overlaid a line in red for
+each NBA team, which represents the predicted popularity scores throughout the
+months of year. My hope is that comparing the predicted popularity scores to the
+actual probability scores with the teams that made the playoffs would allow me to see how this model is performing in terms of predicting popularity score
+during the months in which the playoffs occur. 
+
+After examining all 16 of the plots above, we can see that the model does have
+some difficulty in predicting the popularity scores for teams that do end up 
+making the playoffs. For the months of May and June, there is a large distance
+between the actual and predicted popularity scores for nearly all of these 16
+teams. The model is faily inconsistent as well, as it overpredicts popularity
+scores during these months for nearly half of the teams, and underpredicts
+popularity scores during these months for the other half of the teams. This
+indicates that we perhaps need to include another variable in our model that measures performance during the regular season or performance in the playoffs.
 
