@@ -6,9 +6,11 @@ output:
 ---
 
 ```{r}
+library(readr)
 #Reading in dataset
 #NBARel <- read.csv("/Users/Victor/Desktop/Senior Project/RelativeNBATrends.csv", header = TRUE)
 NBARel <- read.csv("./RelativeNBATrends.csv", header = TRUE)
+NBA_Team_Records <- read_csv("./NBA_Team_Records.csv")
 
 #Reshaping data from wide format to long format
 library(tidyverse)
@@ -276,7 +278,7 @@ indicates that we perhaps need to include another variable in our model that mea
 
 
 ```{r}
-basic_model <- lm(Popularity ~  Team + factor(MonthNum):(Made.Playoffs + Record + Finish + Round.of.Playoffs), data = NBATeams)
+# basic_model <- lm(Popularity ~  Team + factor(MonthNum):(Made.Playoffs + Record + Finish + Round.of.Playoffs), data = NBATeams)
 ```
 
 
@@ -317,7 +319,10 @@ NBATeams$Season <- as.character(NBATeams$Season)
 
 
 #Merging dataset with another dataset containing team record, playoffs, etc.
-NBATeams <- left_join(NBATeams, NBA_Team_Records, by = c("Season", "Team"))
+NBATeams <- left_join(NBATeams, NBA_Team_Records, by = c("Season", "Team")) 
+
+
+names(NBATeams)[10] <- "W.L."
 
 ```
 
@@ -326,7 +331,7 @@ seasondata_model <- lm(Popularity ~ Team + factor(MonthNum):(W.L. + Playoffs)
                        , data = NBATeams)
 summary(seasondata_model)
 ```
-```
+
 
 ```{r}
 #Viewing mean Win/Loss percentages since 2004
@@ -347,3 +352,20 @@ the San Antonio Spurs, the Oklahoma City Thunder, and the Dallas Mavericks, are
 also within the top 11 for mean popularity score. This may seem to indicate that
 teams that have higher win percentages are likely to have higher popularity
 scores. 
+
+```{r}
+## Need to combine observations like "made semis"
+## Blanks -> No, did not make semis
+
+NBATeams <- NBATeams %>% add_predictions(seasondata_model)
+
+NBATeams %>%
+  filter(Team == "GoldenStateWarriors") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") +
+  ggtitle("Actual vs. Predicted Popularity")
+```
+
+```{r}
+## KB - mixed
+```
+
