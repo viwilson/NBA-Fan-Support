@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r}
-#Reading in dataset hi
+#Reading in dataset
 #NBARel <- read.csv("/Users/Victor/Desktop/Senior Project/RelativeNBATrends.csv", header = TRUE)
 NBARel <- read.csv("./RelativeNBATrends.csv", header = TRUE)
 
@@ -279,6 +279,24 @@ indicates that we perhaps need to include another variable in our model that mea
 basic_model <- lm(Popularity ~  Team + factor(MonthNum):(Made.Playoffs + Record + Finish + Round.of.Playoffs), data = NBATeams)
 ```
 
+
+```{r}
+
+#Obtaining first 4 characters of Season String to match with other dataset
+SeasonYear <- substr(as.character(NBA_Team_Records$Season), 1,4)
+NBA_Team_Records$Season <- SeasonYear
+
+
+#Removing all asterisks from the end of team names
+NBA_Team_Records$Team <- gsub("[*].*$","",NBA_Team_Records$Team)
+
+#Removing whitespaces from Team Names to match format of other dataset
+NBA_Team_Records$Team <- gsub(" ","",NBA_Team_Records$Team) 
+```
+
+
+
+
 ```{r}
 NBATeams <- NBATeams %>% mutate(
   Season = case_when(
@@ -287,15 +305,27 @@ NBATeams <- NBATeams %>% mutate(
   )
 )
 
+#Setting Season variable to be character instead of numeric
+NBATeams$Season <- as.character(NBATeams$Season)
+
 ## hypothetical New_Data
 
 ### Think about: teams that change names
 ### Make sure the "Team" variables match
 
-NBATeams <- left_join(NBATeams, New_Data, by = c("Season", "Team"))
+##Region/Market for each team ()
 
-# hi eric
+
+#Merging dataset with another dataset containing team record, playoffs, etc.
+NBATeams <- left_join(NBATeams, NBA_Team_Records, by = c("Season", "Team"))
+
 ```
 
+```{r}
+seasondata_model <- lm(Popularity ~ Team + factor(MonthNum):(W.L. + Playoffs)
+                       , data = NBATeams)
+summary(seasondata_model)
+```
+```
 
 
