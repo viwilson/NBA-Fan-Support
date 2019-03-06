@@ -328,4 +328,22 @@ summary(seasondata_model)
 ```
 ```
 
+```{r}
+#Viewing mean Win/Loss percentages since 2004
+aggregate(W.L. ~ Team, NBATeams, mean) %>% arrange(desc(W.L.))
 
+aggregate(Popularity ~ Team, NBATeams, mean) %>% arrange(desc(Popularity))
+```
+Upon viewing the mean win percentages for each team, we see that the teams
+with the highest win percentages since 2004 are the San Antonio Spurs, the 
+Oklahoma City Thunder, and the Dallas Mavericks. Meanwhile the teams with the 
+lowest win percentages are the Minnesota Timberwolves, the Philadelphia 76ers,
+and the Sacramento Kings. 
+
+When comparing the win percentages and the popularity scores for each team,
+we can see that there is somewhat of an association between win percentage and 
+search popularity. The teams with the top 3 win percentages since 2004 which are
+the San Antonio Spurs, the Oklahoma City Thunder, and the Dallas Mavericks, are
+also within the top 11 for mean popularity score. This may seem to indicate that
+teams that have higher win percentages are likely to have higher popularity
+scores. 
