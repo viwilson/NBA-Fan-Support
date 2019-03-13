@@ -357,7 +357,7 @@ scores.
 NBATeams <- NBATeams %>% add_predictions(seasondata_model)
 
 NBATeams %>%
-  filter(Team == "DetroitPistons") %>%
+  filter(Team == "HoustonRockets") %>%
   ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") +
   ggtitle("Actual vs. Predicted Popularity")
 ```
