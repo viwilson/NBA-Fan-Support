@@ -312,9 +312,6 @@ NBATeams$Season <- as.character(NBATeams$Season)
 
 ## hypothetical New_Data
 
-### Think about: teams that change names
-### Make sure the "Team" variables match
-
 ##Region/Market for each team ()
 
 
@@ -360,12 +357,48 @@ scores.
 NBATeams <- NBATeams %>% add_predictions(seasondata_model)
 
 NBATeams %>%
-  filter(Team == "GoldenStateWarriors") %>%
+  filter(Team == "DetroitPistons") %>%
   ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") +
   ggtitle("Actual vs. Predicted Popularity")
 ```
 
 ```{r}
 ## KB - mixed
+```
+
+```{r}
+#Setting all blank values of Playoffs variable to be of type N/A
+is.na(NBATeams$Playoffs) <- which(NBATeams$Playoffs == "")
+
+#Setting all N/A observations of Playoffs variable to read as "Did Not Make #Playoffs"
+NBATeams$Playoffs[is.na(NBATeams$Playoffs)] <- "Did Not Make Playoffs"
+
+#Renaming Playoffs values to combine East/West
+NBATeams$Playoffs<- as.character(NBATeams$Playoffs)
+
+#Renaming Western Conference Finals
+NBATeams$Playoffs[NBATeams$Playoffs == "Lost W. Conf. Finals"] <- "Lost Conf. Finals"
+
+#Renaming Eastern Conference Finals
+NBATeams$Playoffs[NBATeams$Playoffs == "Lost E. Conf. Finals"] <- "Lost Conf. Finals"
+
+#Renaming Eastern Conference Semis
+NBATeams$Playoffs[NBATeams$Playoffs == "Lost E. Conf. Semis"] <- "Lost Conf. Semis"
+
+#Renaming Western Conference Semis
+NBATeams$Playoffs[NBATeams$Playoffs == "Lost W. Conf. Semis"] <- "Lost Conf. Semis"
+
+#Renaming Eastern Conference 1st Round
+NBATeams$Playoffs[NBATeams$Playoffs == "Lost E. Conf. 1st Rnd."] <- "Lost 1st Round"
+
+#Renaming Western Conference 1st Round
+NBATeams$Playoffs[NBATeams$Playoffs == "Lost W. Conf. 1st Rnd."] <- "Lost 1st Round"
+
+#Setting Playoffs variable to be a factor again
+NBATeams$Playoffs <- as.factor(NBATeams$Playoffs)
+
+#Checking levels of Playoff variable to ensure only 6 possible levels
+levels(NBATeams$Playoffs)
+
 ```
 
