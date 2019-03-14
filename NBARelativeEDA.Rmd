@@ -82,15 +82,6 @@ NBATeams %>%
   filter(Team %in% c("ClevelandCavaliers", "GoldenStateWarriors")) %>%
   ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
 
-NBATeams %>% 
-  filter(Date %within% interval("2018-04-01", "2018-06-01")) %>%
-  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
-
-NBATeams %>% 
-  filter(Date %within% interval("2014-11-01", "2018-08-01") & Team %in% c("ClevelandCavaliers", "LosAngelesLakers")) %>%
-  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
-
-
 
 NBATeams %>% 
   filter(Date %within% interval("2018-04-01", "2018-07-01")) %>%
