@@ -82,6 +82,15 @@ NBATeams %>%
   filter(Team %in% c("ClevelandCavaliers", "GoldenStateWarriors")) %>%
   ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
 
+NBATeams %>% 
+  filter(Date %within% interval("2018-04-01", "2018-06-01")) %>%
+  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
+
+NBATeams %>% 
+  filter(Date %within% interval("2014-11-01", "2018-08-01") & Team %in% c("ClevelandCavaliers", "LosAngelesLakers")) %>%
+  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
+
+
 
 NBATeams %>% 
   filter(Date %within% interval("2018-04-01", "2018-07-01")) %>%
@@ -393,3 +402,39 @@ levels(NBATeams$Playoffs)
 
 ```
 
+```{r}
+seasondata_model <- lm(Popularity ~ Team + factor(MonthNum):(W.L. + Playoffs)
+                       , data = NBATeams)
+summary(seasondata_model)
+
+NBATeams <- NBATeams %>% add_predictions(seasondata_model)
+
+NBATeams %>%
+  filter(Team == "NewYorkKnicks") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") +
+  ggtitle("Actual vs. Predicted Popularity")
+```
+
+## Bandwagony
+
+```{r}
+
+NBATeams %>%
+  filter(Team == "GoldenStateWarriors") %>%
+  select(Playoffs, pred, Popularity, W.L., MonthNum) %>%
+  group_by(Playoffs) %>%
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE))
+
+NBATeams %>%
+  filter(Team == "NewYorkKnicks") %>%
+  select(pred, Popularity, W.L.) %>%
+  group_by(W.L.) %>%
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  ggplot(aes(x = W.L., y = Bandwagon)) + geom_point() + stat_smooth(method = "lm")
+
+```
+
+- most to least bandwagony teams
+- data from regions specifically, balance by TV market size?
+- nice plots by Victor
+- Market size/TV market into data, explore at will
