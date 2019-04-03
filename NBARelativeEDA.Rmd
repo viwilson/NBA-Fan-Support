@@ -453,8 +453,8 @@ the Raptors play in Toronto. Include them with New York??
 ```{r}
 NBATeams %>%
   select(Playoffs, pred, Popularity, W.L., MonthNum, Team) %>%
-  group_by(Team) %>%
-  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>% arrange(-Bandwagon)
+  group_by(Team, Playoffs == "Did Not Make Playoffs") %>%
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) #%>% arrange(-Bandwagon)
 ```
 The teams that have the highest "Bandwagon" values according to our
 metric, are the Los Angeles Lakers, Golden State Warriors, Philadelphia 76ers,
@@ -468,6 +468,20 @@ of the bandwagon rankings since we do not have much data on these data for the
 model, so the model likely struggles in creating an accurate prediciton for their search popularity. 
 
 ```{r}
+bw <- NBATeams %>%
+  select(Playoffs, pred, Popularity, W.L., MonthNum, Team) %>%
+  group_by(Team, Playoffs) %>%
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) 
 
+bw %>% filter(Team == "GoldenStateWarriors") %>%
+  ggplot(aes(x = Playoffs, y = Bandwagon)) + geom_col()
+
+NBATeams %>%
+  select(Playoffs, pred, Popularity, W.L., MonthNum, Team, Season) %>%
+  group_by(Season, Team) %>%
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE),
+            W.L. = mean(W.L.)) %>%
+  filter(Team == "BostonCeltics") %>%
+  ggplot(aes(x = W.L., y = Bandwagon)) + geom_point()
 ```
 
