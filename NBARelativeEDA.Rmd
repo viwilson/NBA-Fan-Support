@@ -460,4 +460,14 @@ The teams that have the highest "Bandwagon" values according to our
 metric, are the Los Angeles Lakers, Golden State Warriors, Philadelphia 76ers,
 Boston Celtics, and Milwaukee Bucks. This seems to make intiuitive sense because
 the Lakers and the Warriors are teams that are typically accused of having the
-most "bandwagon" 
+most "bandwagon" fans. Contrastly, the teams that have the lowest "Bandwagon"
+values are the Oklahoma City Thunder, New Orleans Pelicans, and Brooklyn Nets.
+It is interesting to note that these teams have all recently relocated or have
+rebranded the name of their team. These teams are likely all near the bottom 
+of the bandwagon rankings since we do not have much data on these data for the
+model, so the model likely struggles in creating an accurate prediciton for their search popularity. 
+
+```{r}
+
+```
+
