@@ -310,7 +310,6 @@ NBATeams <- NBATeams %>% mutate(
 #Setting Season variable to be character instead of numeric
 NBATeams$Season <- as.character(NBATeams$Season)
 
-## hypothetical New_Data
 
 ##Region/Market for each team ()
 
@@ -431,10 +430,34 @@ NBATeams %>%
   group_by(W.L.) %>%
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
   ggplot(aes(x = W.L., y = Bandwagon)) + geom_point() + stat_smooth(method = "lm")
-
 ```
 
 - most to least bandwagony teams
 - data from regions specifically, balance by TV market size?
 - nice plots by Victor
 - Market size/TV market into data, explore at will
+
+
+```{r}
+#Reading in NBA Market Dataset obtained from #https://www.sportsmediawatch.com/nba-market-size-nfl-mlb-nhl-nielsen-ratings/
+
+NBAMarket <- read.csv("NBAMarketSize.csv", header = TRUE)
+#Contains data on television market size, as defined by Nielsen market size.
+```
+Note: Toronto is not included in this dataset since Nielsen only tracks data
+for cities in the United States. Need to decide how to account for this, since our data from Google Trends only includes searches in the United States, but
+the Raptors play in Toronto. Include them with New York??
+
+
+
+```{r}
+NBATeams %>%
+  select(Playoffs, pred, Popularity, W.L., MonthNum, Team) %>%
+  group_by(Team) %>%
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>% arrange(-Bandwagon)
+```
+The teams that have the highest "Bandwagon" values according to our
+metric, are the Los Angeles Lakers, Golden State Warriors, Philadelphia 76ers,
+Boston Celtics, and Milwaukee Bucks. This seems to make intiuitive sense because
+the Lakers and the Warriors are teams that are typically accused of having the
+most "bandwagon" 
