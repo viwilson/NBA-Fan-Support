@@ -485,3 +485,51 @@ NBATeams %>%
   ggplot(aes(x = W.L., y = Bandwagon)) + geom_point()
 ```
 
+```{r}
+NBATeams %>% filter(Playoffs != "Did Not Make Playoffs") %>%
+  group_by(Team, Season) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  ggplot(aes(x = Season, y = Bandwagon, col = Team)) +
+  geom_point()
+```
+```{r}
+NBATeams %>% 
+  filter(Playoffs == "Did Not Make Playoffs") %>%
+  group_by(Team, Season) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  ggplot(aes(x = Season, y = Bandwagon, col = Team)) +
+  geom_point()
+```
+
+```{r}
+#Computing Bandwagon Score for years in which team did not make client
+NBATeams %>% filter(Playoffs == "Did Not Make Playoffs") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE))
+```
+```{r}
+#Computing Bandwagon Score for years in which team made playoffs
+bw_Playoffs <- NBATeams %>% filter(Playoffs != "Did Not Make Playoffs") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE))
+```
+
+```{r}
+bw_NoPlayoffs <- NBATeams %>% filter(Playoffs == "Did Not Make Playoffs") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE))
+```
+
+
+```{r}
+bw_Overall<- bw_NoPlayoffs %>% select(Team)
+bw_Overall$Playoffs <- bw_Playoffs$Bandwagon
+bw_Overall$NoPlayoffs <- bw_NoPlayoffs$Bandwagon
+bw_Overall$Bandwagon <- bw_Overall$Playoffs - bw_Overall$NoPlayoffs
+bw_Overall
+```
+
+```{r}
+
+```
+
