@@ -515,6 +515,7 @@ bw_Playoffs <- NBATeams %>% filter(Playoffs != "Did Not Make Playoffs") %>%
 ```
 
 ```{r}
+#Computing Bandwagon Score for years in which team did not make playoffs
 bw_NoPlayoffs <- NBATeams %>% filter(Playoffs == "Did Not Make Playoffs") %>%
   group_by(Team) %>% 
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE))
