@@ -527,10 +527,11 @@ bw_Overall<- bw_NoPlayoffs %>% select(Team)
 bw_Overall$Playoffs <- bw_Playoffs$Bandwagon
 bw_Overall$NoPlayoffs <- bw_NoPlayoffs$Bandwagon
 bw_Overall$Bandwagon <- bw_Overall$Playoffs - bw_Overall$NoPlayoffs
-bw_Overall
+bw_Overall %>% arrange(-Bandwagon)
 ```
-
-```{r}
-
-```
-
+After computing this bandwagon metric, we see that the team that seems to be
+most prone to the "Bandwagon effect" is the Golden State Warriors by far, as
+there Bandwagon score is much larger than the next closest team (New York Knicks). This indicates that, on average, the Golden State Warriors are much more popular than predicted in years in which they make the playoffs and much
+less popular than predicted in years in which they do not make the playoffs.
+This is evidence of the bandwagon effect, because it shows that when the Warriors are performing well, they have much more interest than usual, and when
+they are not performing well, this interest drastically decreases. 
