@@ -418,15 +418,16 @@ NBATeams %>%
 
 ```{r}
 
+
 NBATeams %>%
   filter(Team == "GoldenStateWarriors") %>%
-  select(Playoffs, pred, Popularity, W.L., MonthNum) %>%
+  dplyr::select(Playoffs, pred, Popularity, W.L., MonthNum) %>%
   group_by(Playoffs) %>%
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE))
 
 NBATeams %>%
   filter(Team == "NewYorkKnicks") %>%
-  select(pred, Popularity, W.L.) %>%
+  dplyr::select(pred, Popularity, W.L.) %>%
   group_by(W.L.) %>%
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
   ggplot(aes(x = W.L., y = Bandwagon)) + geom_point() + stat_smooth(method = "lm")
@@ -452,7 +453,7 @@ the Raptors play in Toronto. Include them with New York??
 
 ```{r}
 NBATeams %>%
-  select(Playoffs, pred, Popularity, W.L., MonthNum, Team) %>%
+  dplyr::select(Playoffs, pred, Popularity, W.L., MonthNum, Team) %>%
   group_by(Team, Playoffs == "Did Not Make Playoffs") %>%
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) #%>% arrange(-Bandwagon)
 ```
@@ -469,7 +470,7 @@ model, so the model likely struggles in creating an accurate prediciton for thei
 
 ```{r}
 bw <- NBATeams %>%
-  select(Playoffs, pred, Popularity, W.L., MonthNum, Team) %>%
+  dplyr::select(Playoffs, pred, Popularity, W.L., MonthNum, Team) %>%
   group_by(Team, Playoffs) %>%
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) 
 
@@ -477,7 +478,7 @@ bw %>% filter(Team == "GoldenStateWarriors") %>%
   ggplot(aes(x = Playoffs, y = Bandwagon)) + geom_col()
 
 NBATeams %>%
-  select(Playoffs, pred, Popularity, W.L., MonthNum, Team, Season) %>%
+  dplyr::select(Playoffs, pred, Popularity, W.L., MonthNum, Team, Season) %>%
   group_by(Season, Team) %>%
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE),
             W.L. = mean(W.L.)) %>%
@@ -524,6 +525,7 @@ bw_Playoffs <- NBATeams %>% filter(Playoffs != "Did Not Make Playoffs") %>%
 ```
 
 ```{r}
+#Computing Bandwagon Score for years in which team did not make playoffs
 bw_NoPlayoffs <- NBATeams %>% filter(Playoffs == "Did Not Make Playoffs") %>%
   group_by(Team) %>% 
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE))
@@ -531,14 +533,50 @@ bw_NoPlayoffs <- NBATeams %>% filter(Playoffs == "Did Not Make Playoffs") %>%
 
 
 ```{r}
-bw_Overall<- bw_NoPlayoffs %>% select(Team)
+bw_Overall<- bw_NoPlayoffs %>% dplyr::select(Team)
 bw_Overall$Playoffs <- bw_Playoffs$Bandwagon
 bw_Overall$NoPlayoffs <- bw_NoPlayoffs$Bandwagon
 bw_Overall$Bandwagon <- bw_Overall$Playoffs - bw_Overall$NoPlayoffs
 
 bw_Overall %>% arrange(desc(Bandwagon))
 ```
+* statistical tests for pop. disc.  differences for:
+- PO vs not
+- W.L.
+- more categories - didn't make POs vs. 1st round etc
 
+* Bandwagon metrics correlate to:
+- overall popularity of team
+- overall success of team
+- other confounders
+
+* Incorporating other datasets
+
+
+
+<<<<<<< HEAD
+```{r}
+#Testing differences of Popularity scores across Playoff categories
+PlayoffsAnova <- lm(Popularity~Playoffs, data=NBATeams)
+anova(PlayoffsAnova)
+
+aov.fit1 <- aov(Popularity ~ Playoffs, data=NBATeams)
+posthoc <- TukeyHSD(x=aov.fit1, conf.level=0.95)
+posthoc
+
+
+```
+
+
+```{r}
+#Creating new indicator variable for if team made playoffs
+NBATeams <- mutate(NBATeams, IndPlayoffs = ifelse(Playoffs == "Did Not Make Playoffs", "No Playoffs", "Playoffs"))
+
+POIndAov <- lm(Popularity~IndPlayoffs, data=NBATeams)
+anova(POIndAov)
+```
+
+=======
 * statistical tests for pop. disc.  differences for:
 - PO vs not
 - W.L.
