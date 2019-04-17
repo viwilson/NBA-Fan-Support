@@ -553,8 +553,6 @@ bw_Overall %>% arrange(desc(Bandwagon))
 * Incorporating other datasets
 
 
-
-<<<<<<< HEAD
 ```{r}
 #Testing differences of Popularity scores across Playoff categories
 PlayoffsAnova <- lm(Popularity~Playoffs, data=NBATeams)
@@ -563,6 +561,8 @@ anova(PlayoffsAnova)
 aov.fit1 <- aov(Popularity ~ Playoffs, data=NBATeams)
 posthoc <- TukeyHSD(x=aov.fit1, conf.level=0.95)
 posthoc
+
+ggplot(NBATeams, aes(y = log(Popularity), x = Playoffs, fill = Playoffs)) + geom_boxplot()
 
 
 ```
@@ -576,7 +576,7 @@ POIndAov <- lm(Popularity~IndPlayoffs, data=NBATeams)
 anova(POIndAov)
 ```
 
-=======
+
 * statistical tests for pop. disc.  differences for:
 - PO vs not
 - W.L.
@@ -588,5 +588,59 @@ anova(POIndAov)
 - other confounders
 
 * Incorporating other datasets
->>>>>>> ecea57728d8d2f892c907b313894a399b820bdc5
+
+```{r}
+names(bw_Overall) <- c("Team", "PO_diff", "NP_diff", "Bandwagon")
+
+NBATeams <- NBATeams %>% left_join(bw_Overall)
+
+ggplot(NBATeams, aes(x = Team, y = Bandwagon, fill = Team)) + geom_col()
+```
+
+## 3 success categories
+
+## medians
+
+why are medians so different than means for some teams?
+which do you think is better measure, why?
+can you make hypothesis test conclusions?
+
+```{r}
+NBATeams %>% filter(Playoffs != "Did Not Make Playoffs") %>%
+  mutate(
+    diff = Popularity - pred,
+  ) %>%
+  group_by(Team) %>% 
+  summarize(
+    Bandwagon2 = median(diff, na.rm = TRUE)) %>%
+  arrange(Bandwagon2)
+
+NBATeams %>% filter(Playoffs == "Did Not Make Playoffs") %>%
+  mutate(
+    diff = Popularity - pred,
+  ) %>%
+  group_by(Team) %>% 
+  summarize(
+    Bandwagon2 = median(diff, na.rm = TRUE)) %>%
+  arrange(Bandwagon2)
+```
+
+## bandwagony by year
+
+Statistical conclusion about 1-3 teams and change over time
+
+## market size
+
+```{r}
+NBAMarketSize <- read.csv("NBAMarketSize.csv")
+
+NBAMarketSize <- NBAMarketSize %>% mutate(
+  Size = as.numeric(unlist(str_remove_all(Size, fixed(","))))
+)
+
+NBATeams <- NBATeams %>% left_join(NBAMarketSize)
+```
+
+- bw and size
+- incorporaate size into model
 
