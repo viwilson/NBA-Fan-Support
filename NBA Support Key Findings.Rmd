@@ -1,0 +1,189 @@
+---
+title: 'NBA Fan Support Key Findings '
+output:
+  html_document:
+    df_print: paged
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo=FALSE, results=FALSE, include=FALSE, message=FALSE,warning=FALSE)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(modelr)
+library(knitr)
+
+suppressWarnings(suppressMessages(library("dplyr")))
+```
+
+```{r, echo=FALSE, warning=FALSE}
+load('myEnvironment.RData')
+```
+
+
+# Summary of Project
+
+Sports are a staple of American culture, and fans are always interested in statistics related to their favorite team, including popularity trends. Popularity trends can also be useful from a business standpoint, as it can provide advertisers with valuable data about which teams are notably popular at a given point in time. The support for a particular sports team ebbs and flows over time as well, varying with team success and time of year, such as an increase in popularity during playoffs and a sharp decrease in popularity immediately after. 
+
+A recent example of this can be seen with the Golden State Warriors, who have seen a huge surge in popularity during the last 5 years, after winning several NBA Championships. Popularity for a certain team can be measured via search data available on Google Trends, which provides data on the relative popularity of terms that are searched for on Google. 
+
+The main goal of this project is to analyze the popularity of NBA teams over time throughout the United States. We are focused on comparing the search popularity for all 30 NBA teams throughout time, and creating mathematical model to predict the yearly pattern of team support, correcting for team performance, playoffs, and other factors. This model is then used to discover the differences in support patterns between teams and potentially identify bandwagon fans, as well as if whether some teams are more prone to attract bandwagon fans than others.
+
+The data for popularity scores was all collected from Google Trends, and contains the relative popularity scores for all 30 NBA teams for each month from January 2004 to present. In order to correct for the fact that all of the popularity scores for each team are relative to the peak popularity for that specific team, all scores were compared to the absolute max popularity score, which is the Golden State Warriors in June 2016. 
+
+# Exploratory Data Analysis
+```{r, echo=FALSE, warning=FALSE}
+#Viewing mean popularity score for each team 
+aggregate(Popularity ~ Team, NBATeams, mean) %>% arrange(desc(Popularity))
+```
+
+To get a sense of which teams are overall more popular than others since 2004, I computed the average popularity scores across all time points for each team. Here we see that the teams with the highest average popularity scores are the Los Angeles Lakers, Golden State Warriors, and Cleveland Cavaliers. These results make sense as these teams have been wildly successful throughout the last 15 years. 
+
+```{r, include=TRUE}
+#Scatterplot with mean and median Popularity score by month
+#Red = Mean , Blue = Median
+
+NBATeams %>%
+  group_by(MonthNum) %>%
+  summarize_at(vars(Popularity), funs(mean, median)) %>%
+  ggplot() + geom_point(aes(x = MonthNum, y = mean), col = "red") +
+  geom_point(aes(x = MonthNum, y = median), col = "blue")
+```
+
+I also expected there to be a difference in popularity scores from month to month, as I expect teams to overall be more popular during the NBA Playoffs (which encompasses the months of April-June) and less popular during the NBA off season (which encompasses the months of July-October). 
+
+To see if this is indeed the case, I plotted both the mean and median popularity score for each month. In the plot above, the red dots represent the mean popularity score for each month, whereas the blue dots represent the median popularity score for each month. We can indeed see that during the months of the NBA playoffs, the mean popularity scores are higher, peaking in May. The mean and median popularity scores are also much further apart in these months than in other months, as the mean is likely highly skewed by teams which make deep playoff runs, and as a result see a large increase in popularity. 
+
+```{r, include=TRUE}
+#Plot of Golden State Warriors & Cleveland Cavaliers Popularity over time
+NBATeams %>% 
+  filter(Date %within% interval("2004-11-01", "2018-07-01") & Team %in% c("ClevelandCavaliers", "GoldenStateWarriors")) %>%
+  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
+```
+
+Next, I decided to take a closer look at the popularity of two specific teams in the NBA. I decided to focus on the Cleveland Cavaliers and Golden State Warriors, because the earlier exploratory analysis indicated that these teams have two of the highest mean popularity scores. These teams have also experienced a lot of recent success, having played each other in the NBA Finals for the past 4 years. 
+
+Plotted above is the popularity scores for both the Cleveland Cavaliers and the Golden State Warriors from the beginning of the 2004 NBA Season to the end of the 2018 NBA season. We can see that the the popularity scores for both teams are both fairly low until around 2015, where the Warriors experience a large spike in Popularity score that is nearly 50. We then see that these teams continue to see large spikes in popularity for the following years, with a peak in 2016, as the Warriors achieved a popularity score of 100 in June 2016. This is interesting to note, as it appears that these two teams have become much more popular in recent years. 
+
+```{r, include=TRUE, results=TRUE}
+aggregate(W.L. ~ Team, NBATeams, mean) %>% arrange(desc(W.L.))
+
+aggregate(Popularity ~ Team, NBATeams, mean) %>% arrange(desc(Popularity))
+```
+
+I then decided to investigate some descriptive statistics to see if there appears to be somewhat of a relationship between Win/Loss percentage and Popularity score, because I hypothesize that teams that are performing better are more likely to have higher popularity scores. 
+
+Upon viewing the mean win percentages for each team, we see that the teams
+with the highest win percentages since 2004 are the San Antonio Spurs, the 
+Oklahoma City Thunder, and the Dallas Mavericks. Meanwhile the teams with the 
+lowest win percentages are the Minnesota Timberwolves, the Philadelphia 76ers,
+and the Sacramento Kings. 
+
+When comparing the win percentages and the popularity scores for each team,
+we can see that there is somewhat of an association between win percentage and 
+search popularity. The teams with the top 3 win percentages since 2004 which are
+the San Antonio Spurs, the Oklahoma City Thunder, and the Dallas Mavericks, are
+also within the top 11 for mean popularity score. This may seem to indicate that
+teams that have higher win percentages are likely to have higher popularity
+scores. 
+
+
+# Model Fitting
+```{r}
+seasondata_model <- lm(Popularity ~ Team + factor(MonthNum):(W.L. + Playoffs)
+                       , data = NBATeams)
+summary(seasondata_model)
+
+NBATeams <- NBATeams %>% add_predictions(seasondata_model)
+
+```
+
+After viewing these exploratory results, I decided to fit a very robust linear model to predict Popularity scores. This model uses the predictors of Team, interaction terms between each month of the year and Win/Loss record, as well as the interaction terms between each month of the year and each possible Playoff result (Did Not Make Playoffs, Lost in 1st Round, Lost Conference Semifinals, Lost Conference Finals, Lost NBA Finals, and Won NBA Finals). 
+
+Some key takeaways from the results of this model are that the interaction terms between both winning and losing the NBA Finals and month of the year are only significant for the months of May and June. We can also see that the parameter estimates for all 4 of these terms are largely positive, indicating that the effect of the months of May and June on popularity scores are much larger for teams that make the NBA Finals than for teams that do not make the NBA Finals.
+
+However, it is also interesting to note that the interaction terms for the other months of the year(aside from August) and Winning/Losing the NBA Finals are not statistically significant. This appears to indicate that that are performing well throughout the year and do go on to perform well in the NBA Playoffs typically do not see a large increase in popularity until they are actually playing in the NBA Finals. 
+
+```{r, include=TRUE}
+NBATeams %>%
+  filter(Team == "GoldenStateWarriors") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") +
+  ggtitle("Golden State Warriors Actual vs. Predicted Popularity")
+
+NBATeams %>%
+  filter(Team == "ClevelandCavaliers") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") +
+  ggtitle("Cleveland Cavaliers Actual vs. Predicted Popularity")
+```
+
+Now that we have the predictions for popularity score from the model above, we can see how the predictions from this model compare to the actual popularity scores. Since the exploratory data analysis indicated that the Golden State Warriors and Cleveland Cavaliers may be teams of interest, I will examine plots for each of these teams. 
+
+The first plot is the Actual vs. Predicted Popularity scores for the Golden State Warriors, across all times. The red line indicates the predicted popularity scores, whereas the black line indicates the observed popularity scores. We can see that from roughly 2004-2015, the model tends to consistently over predict the popularity scores for the Warriors, meaning that the Warriors a bit less popular than we would expect throughout these years. Following 2015, however, the observed popularity scores are much higher than the model predicts, especially during the months of May and June when the Warriors played in the NBA Finals. 
+
+In the plot examining the Actual vs. Predicted Popularity scores for the Cleveland Cavaliers, we see a very similar trend. After 2015, the observed popularity scores for the Cleveland Cavaliers tend to be much larger than the predicted popularity scores, also peaking during the months of the NBA Finals. 
+
+These plots may give us some initial evidence of the "Bandwagon effect". This is a common phrase often used in sports to describe teams who seem to have a large amount of supporters when they are performing well, but these supporters seem to disappear when the team is no longer performing well. Both of these plots seem to suggest that the Warriors and Cavaliers tend to be more popular than predicted when they are playing well, and less popular than predicted when they are not performing well, which is typically described as a "bandwagon effect". 
+
+# Detecting differences across playoff performance
+```{r, echo=FALSE, warning=FALSE}
+PlayoffsAnova <- lm(Popularity~Playoffs, data=NBATeams)
+anova(PlayoffsAnova)
+
+aov.fit1 <- aov(Popularity ~ Playoffs, data=NBATeams)
+posthoc <- TukeyHSD(x=aov.fit1, conf.level=0.95)
+posthoc
+
+ggplot(NBATeams, aes(y = log(Popularity), x = Playoffs, fill = Playoffs)) + geom_boxplot()
+
+```
+
+
+
+```{r, include=TRUE}
+ggplot(NBATeams, aes(y = log(Popularity), x = Playoffs, fill = Playoffs)) +    geom_boxplot() +  theme(axis.text.x=element_text(angle=45, hjust=1)) + 
+  guides(fill = FALSE)
+
+```
+
+Looking at the boxplots above, we can see the log Popularity scores for each group of playoff performance (Did Not Make Playoffs, Lost 1st Round, Lost Conference Semifinals, Lost Conference Finals, Lost NBA Finals, and Won NBA Finals). We see that there does not seem to be much of a difference in popularity scores between teams that do not make the playoffs and teams that lose in the 1st round of the playoffs. Similarly, there does not appear to be a difference in popularity scores between teams that lost in the Conference Finals and teams that lost in the Conference Semifinals. Finally, we see that there does not to be much of a difference in popularity score between teams that lose the NBA Finals and teams that win the NBA Finals. 
+
+There does however appear to be 3 distinct "categories" of playoff success, which do seem to have differing popularity scores. The first category is teams that do not make the playoffs and teams that lose in the first round of the playoffs. I will call this category "Dark Horse", as these teams are all essentially teams that have very little chance of winning the NBA Finals, and are generally not performing very well. The second category is comprised of teams that either lose in the Conference Finals or lose in the Conference Semifinals. I will call this category "Contenders", as these teams are all contending in the playoffs, having advanced at least past the first round, but are not necessarily heavy favorites, as they do not advance to the NBA Finals. The final category is comprised of teams that make the NBA Finals, regardless of whether they win or lose the Finals. I will call this category "Heavy Favorites", as these are the two final teams remaining at the end of the season, won their respective Conference title. 
+
+The results from inspecting the boxplots also make intuitive sense, as we would the popularity of teams to increase as they make it farther in the playoffs, which is reflected in the median log popularity scores for teams that make the NBA Finals being higher than the others. 
+
+# Computing Bandwagon Scores
+```{r, include=TRUE, results=TRUE}
+#Mean Bandwagon score for Dark Horse
+bw_DarkHorse <- NBATeams %>% filter(Succ_Cat == "Dark Horse") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  arrange(Bandwagon)
+bw_DarkHorse
+
+tail(kable(bw_DarkHorse, format="markdown"))
+
+
+#Mean Bandwagon score for Contenders
+bw_Contender <- NBATeams %>% filter(Succ_Cat == "Contender") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  arrange(Bandwagon)
+
+head(kable(bw_Contender, format="markdown"))
+
+#Mean Bandwagon score for Heavy Favorites
+bw_Favorites <- NBATeams %>% filter(Succ_Cat == "Heavy Favorite") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  arrange(Bandwagon)
+
+head(kable(bw_Favorites, format="markdown"))
+```
+
+I then focused on attempting to create a "Bandwagon" metric to try and have a numerical value to quantify whether some teams show more evidence of a "Bandwagon effect" than others. The first table displayed above shows the average difference between predicted and actual popularity score, for seasons in which teams were seen as a "Dark Horse" (did not make the playoffs or lost in the first round). In this case, positive values are considered "better", whereas negative values are considered "worse". A positive value would indicate that the team was more popular than predicted, despite the fact that they did not perform well during the season. Contrastly, a negative value would indicate that the team was less popular than predicted during the year in which they did not peform well. 
+
+The second table follows a similar structure as the first one, however the interpretation of these values changes a bit. For this table, the opposite effect is desired, as this table is now solely looking at seasons in which the teams advanced past the first round of the playoffs, performing relatively well. Due to this, positive values are "worse" in this case and negative values are "worse". Positive values would indicate that the team experienced more popularity than predicted during seasons in these seasons in which performed well. 
+
+

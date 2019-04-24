@@ -87,7 +87,7 @@ NBATeams %>%
   ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
 
 NBATeams %>% 
-  filter(Date %within% interval("2014-11-01", "2018-08-01") & Team %in% c("ClevelandCavaliers", "LosAngelesLakers")) %>%
+  filter(Date %within% interval("2004-11-01", "2018-08-01") & Team %in% c("ClevelandCavaliers", "GoldenStateWarriors")) %>%
   ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
 
 
@@ -644,3 +644,89 @@ NBATeams <- NBATeams %>% left_join(NBAMarketSize)
 - bw and size
 - incorporaate size into model
 
+```{r}
+#This model gives an NA estimate for Size variable
+popsize_model <- lm(Popularity ~ factor(Team) + Size + factor(MonthNum):(W.L. + Playoffs)
+                       ,na.action = na.exclude, data = NBATeams)
+summary(popsize_model)
+
+#Viewing Correlation to matrix to try and see what is causing rank deficiency
+cor(NBATeams[sapply(NBATeams, is.numeric)], use="complete.obs")
+```
+
+```{r}
+#Creating new success categories for Dark Horse, Contenders, and Heavy Favorites
+NBATeams <- 
+   mutate(NBATeams,
+        Succ_Cat = recode(Playoffs, "Did Not Make Playoffs" = "Dark Horse",
+                            "Lost 1st Round" = "Dark Horse",
+                            "Lost Conf. Finals" = "Contender",
+                            "Lost Conf. Semis" = "Contender",
+                            "Lost Finals" = "Heavy Favorite",
+                            "Won Finals" = "Heavy Favorite")
+    )
+```
+
+
+
+```{r}
+#Mean Bandwagon score for Dark Horse
+NBATeams %>% filter(Succ_Cat == "Dark Horse") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  arrange(Bandwagon)
+
+
+#Mean Bandwagon score for Contenders
+NBATeams %>% filter(Succ_Cat == "Contender") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  arrange(Bandwagon)
+
+
+#Mean Bandwagon score for Heavy Favorites
+NBATeams %>% filter(Succ_Cat == "Heavy Favorite") %>%
+  group_by(Team) %>% 
+  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
+  arrange(Bandwagon)
+
+```
+
+
+
+```{r}
+#Median Bandwagon Scores for teams that were "Dark Horse"
+NBATeams %>% filter(Succ_Cat == "Dark Horse") %>%
+  mutate(
+    diff = Popularity - pred,
+  ) %>%
+  group_by(Team) %>% 
+  summarize(
+    BandwagonCats = median(diff, na.rm = TRUE)) %>%
+  arrange(BandwagonCats)
+
+#Median Bandwagon Scores for teams that were title contenders
+NBATeams %>% filter(Succ_Cat == "Contender") %>%
+  mutate(
+    diff = Popularity - pred,
+  ) %>%
+  group_by(Team) %>% 
+  summarize(
+    Bandwagon2 = median(diff, na.rm = TRUE)) %>%
+  arrange(Bandwagon2)
+
+#Median Bandwagon Scores for teams that were heavy favorites
+NBATeams %>% filter(Succ_Cat == "Heavy Favorite") %>%
+  mutate(
+    diff = Popularity - pred,
+  ) %>%
+  group_by(Team) %>% 
+  summarize(
+    Bandwagon2 = median(diff, na.rm = TRUE)) %>%
+  arrange(Bandwagon2)
+```
+Here, we see that when teams do not perform very well (either do not make playoffs or lose in the first round of the playoffs), the teams that have much lower median Popularity scores than predicted are the Golden State Warriors and Cleveland Cavaliers. This may indicate some evidence of bandwagon fans, as this means that these two teams are much less popular when they are not performing well. 
+
+Conversely, we see that when performing very well (either losing the NBA Finals or winning the NBA Finals), the teams that have much higher median popularity scores than predicted are once again, the Golden State Warriors and Cleveland Cavaliers. 
+
+From these two statistics, we can see that when the Golden State Warriors and Cleveland Cavaliers perform poorly, they are much less popular than is to be expected, whereas when they perform very well, they are much more popular than is to be expected. Thus, these teams seem to indicate that they suffer from somewhat of a "bandwagon effect".
