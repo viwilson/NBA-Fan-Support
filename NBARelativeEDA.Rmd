@@ -625,9 +625,6 @@ NBATeams %>% filter(Playoffs == "Did Not Make Playoffs") %>%
   arrange(Bandwagon2)
 ```
 
-## bandwagony by year
-
-Statistical conclusion about 1-3 teams and change over time
 
 ## market size
 
@@ -646,9 +643,16 @@ NBATeams <- NBATeams %>% left_join(NBAMarketSize)
 
 ```{r}
 #This model gives an NA estimate for Size variable
-popsize_model <- lm(Popularity ~ factor(Team) + Size + factor(MonthNum):(W.L. + Playoffs)
+popsize_model <- lm(Popularity ~ Size + factor(MonthNum):(W.L. + Playoffs)
                        ,na.action = na.exclude, data = NBATeams)
 summary(popsize_model)
+
+NBATeams <- NBATeams %>% add_predictions(popsize_model, var = "pred_by_pop")
+
+NBATeams %>%
+  filter(Team == "SacramentoKings") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") + geom_line(aes(x = Date, y = pred_by_pop), col = "green")+
+  ggtitle("Actual vs. Predicted Popularity")
 
 #Viewing Correlation to matrix to try and see what is causing rank deficiency
 cor(NBATeams[sapply(NBATeams, is.numeric)], use="complete.obs")
@@ -730,3 +734,14 @@ Here, we see that when teams do not perform very well (either do not make playof
 Conversely, we see that when performing very well (either losing the NBA Finals or winning the NBA Finals), the teams that have much higher median popularity scores than predicted are once again, the Golden State Warriors and Cleveland Cavaliers. 
 
 From these two statistics, we can see that when the Golden State Warriors and Cleveland Cavaliers perform poorly, they are much less popular than is to be expected, whereas when they perform very well, they are much more popular than is to be expected. Thus, these teams seem to indicate that they suffer from somewhat of a "bandwagon effect".
+
+## bandwagony by year
+
+Statistical conclusion about 1-3 teams and 
+* change over time
+* significant bandwagonyness
+* other?
+
+### fix LA and NY
+
+### average yearly cycle summary plots

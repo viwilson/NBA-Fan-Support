@@ -162,7 +162,7 @@ bw_DarkHorse <- NBATeams %>% filter(Succ_Cat == "Dark Horse") %>%
   arrange(Bandwagon)
 bw_DarkHorse
 
-tail(kable(bw_DarkHorse, format="markdown"))
+kable(tail(bw_DarkHorse), format="markdown")
 
 
 #Mean Bandwagon score for Contenders
@@ -171,7 +171,7 @@ bw_Contender <- NBATeams %>% filter(Succ_Cat == "Contender") %>%
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
   arrange(Bandwagon)
 
-head(kable(bw_Contender, format="markdown"))
+kable(head(bw_Contender), format="markdown")
 
 #Mean Bandwagon score for Heavy Favorites
 bw_Favorites <- NBATeams %>% filter(Succ_Cat == "Heavy Favorite") %>%
@@ -179,7 +179,7 @@ bw_Favorites <- NBATeams %>% filter(Succ_Cat == "Heavy Favorite") %>%
   summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
   arrange(Bandwagon)
 
-head(kable(bw_Favorites, format="markdown"))
+kable(head(bw_Favorites), format="markdown")
 ```
 
 I then focused on attempting to create a "Bandwagon" metric to try and have a numerical value to quantify whether some teams show more evidence of a "Bandwagon effect" than others. The first table displayed above shows the average difference between predicted and actual popularity score, for seasons in which teams were seen as a "Dark Horse" (did not make the playoffs or lost in the first round). In this case, positive values are considered "better", whereas negative values are considered "worse". A positive value would indicate that the team was more popular than predicted, despite the fact that they did not perform well during the season. Contrastly, a negative value would indicate that the team was less popular than predicted during the year in which they did not peform well. 
