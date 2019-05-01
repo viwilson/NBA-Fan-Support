@@ -6,6 +6,7 @@ output:
 ---
 
 ```{r}
+knitr::opts_chunk$set(error = TRUE)
 library(readr)
 #Reading in dataset
 #NBARel <- read.csv("/Users/Victor/Desktop/Senior Project/RelativeNBATrends.csv", header = TRUE)
@@ -572,8 +573,10 @@ ggplot(NBATeams, aes(y = log(Popularity), x = Playoffs, fill = Playoffs)) + geom
 #Creating new indicator variable for if team made playoffs
 NBATeams <- mutate(NBATeams, IndPlayoffs = ifelse(Playoffs == "Did Not Make Playoffs", "No Playoffs", "Playoffs"))
 
-POIndAov <- lm(Popularity~IndPlayoffs, data=NBATeams)
+POIndAov <- lm(Popularity~Playoffs, data=NBATeams)
 anova(POIndAov)
+
+TukeyHSD(aov(POIndAov))
 ```
 
 
@@ -649,8 +652,13 @@ summary(popsize_model)
 
 NBATeams <- NBATeams %>% add_predictions(popsize_model, var = "pred_by_pop")
 
+NBATeams <- NBATeams %>%
+  mutate(
+    diff = Popularity - pred,
+  )
+
 NBATeams %>%
-  filter(Team == "SacramentoKings") %>%
+  filter(Team == "LosAngelesClippers") %>%
   ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") + geom_line(aes(x = Date, y = pred_by_pop), col = "green")+
   ggtitle("Actual vs. Predicted Popularity")
 
@@ -748,16 +756,20 @@ Statistical conclusion about 1-3 teams and
 
 
 ```{r}
-bw_Cats <- bw_Cats %>% left_join(bw_Favorites)
+bw_Cats <- bw_DarkHorse %>% left_join(bw_Favorites)
 
 bw_Cats <- bw_Cats %>% left_join(bw_Contender)
 
 #Replacing all NA's with 0's (to be able to compute differences)
 bw_Cats[is.na(bw_Cats)] <- 0
 
-bw_Cats$BWScore <- bw_Cats$FavoritesDiff + bw_Cats$ContendersDiff - bw_Cats$DarkHorse
+bw_Cats$BWScore <- bw_Cats$FavoritesDiff + bw_Cats$ContendersDiff - bw_Cats$DarkHorseDiff
 
 bw_Cats %>% arrange(-BWScore)
+
+sd1 <- sd(bw_Cats$DarkHorseDiff)
+
+bw_Cats$DH_zscore <- bw_Cats$DarkHorseDiff/sd1
 ```
 For each category of Dark Horse, Contenders, and Favorites, I computed the difference between the mean observed popularity score and mean predicted popularity from our model, for each NBA Team. I then used these 3 values to create a Bandwagon measure for each team. I added the values for Favorites and Contenders for each team, and then subtracted the value for Dark Horse. I used this formula because an indicator of the "Bandwagon effect" would be being more popular than predicted when they are performing well (Favorites or Contenders), and less popular than predicted when they are not performing well (Dark Horse). Thus, using this equation, larger values indicate teams that are more likely to experience the Bandwagon effect, while smaller values indicate that are more loyal or have less of a bandwagon effect. 
 
@@ -794,7 +806,7 @@ test %>% group_by(Team) %>% summarize(mean = mean(z_score), sd = sd(z_score))
 ```{r}
 #Viewing how popularity scores for Warriors change over time
 gsw.query <- filter(NBATeams, Team=="GoldenStateWarriors")
-gsw.lm <- lm(Popularity~Season, data= gsw.query)
+gsw.lm <- lm(diff~Season, data= gsw.query)
 summary(gsw.lm)
 ```
 Here, we see that for the Golden State Warriors, the seasons that are significantly associated with popularity score are 2014, 2015, 2016, 2017 and 
@@ -808,4 +820,37 @@ summary(cavs.lm)
 ```
 Here, we see that essentially exactly the same trend for the Cavaliers as we saw for the Warriors. Again, the seasons that are significantly associated with popularity score are 2014, 2015, 2016, 2017 and 2018. The coefficients for these years are all also rather large, which indicates that the Cavaliers also experienced a large increase in popularity during these years. 
 
+
+## New rmd: using population rather than average: why?  and shared issue
+
+
+```{r}
+NBATeams %>%
+  mutate(
+    diff = Popularity - pred,
+  ) %>%
+  filter(Team == "LosAngelesLakers") %>%
+  ggplot(aes(x = Date, y = diff)) + geom_line()
+```
+
+
+Summer
+Reg Season
+Playoffs - participant
+Playoffs - out
+
+
+## Summers for each team = 25 samples.  Evidence of difference from 0?
+
+Wish: 
+- Overall bandwagon score for a year
+- Bandwagon behavior vs: phase of season? team success?
+- (think about regression on residuals)
+
+```{r}
+resid_model <- lm(diff ~ Playoffs, data = NBATeams %>% filter(Team == "GoldenStateWarriors"))
+summary(resid_model)
+```
+
+## reference factor???
 
