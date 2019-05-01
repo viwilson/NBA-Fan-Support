@@ -675,24 +675,24 @@ NBATeams <-
 
 ```{r}
 #Mean Bandwagon score for Dark Horse
-NBATeams %>% filter(Succ_Cat == "Dark Horse") %>%
+bw_DarkHorse <- NBATeams %>% filter(Succ_Cat == "Dark Horse") %>%
   group_by(Team) %>% 
-  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
-  arrange(Bandwagon)
+  summarize(DarkHorseDiff = mean(Popularity, na.rm = TRUE) - mean(pred_by_pop, na.rm = TRUE)) %>%
+  arrange(DarkHorseDiff)
 
 
 #Mean Bandwagon score for Contenders
-NBATeams %>% filter(Succ_Cat == "Contender") %>%
+bw_Contender <- NBATeams %>% filter(Succ_Cat == "Contender") %>%
   group_by(Team) %>% 
-  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
-  arrange(Bandwagon)
+  summarize(ContendersDiff = mean(Popularity, na.rm = TRUE) - mean(pred_by_pop, na.rm = TRUE)) %>%
+  arrange(ContendersDiff)
 
 
 #Mean Bandwagon score for Heavy Favorites
-NBATeams %>% filter(Succ_Cat == "Heavy Favorite") %>%
+bw_Favorites <- NBATeams %>% filter(Succ_Cat == "Heavy Favorite") %>%
   group_by(Team) %>% 
-  summarize(Bandwagon = mean(Popularity, na.rm = TRUE) - mean(pred, na.rm = TRUE)) %>%
-  arrange(Bandwagon)
+  summarize(FavoritesDiff = mean(Popularity, na.rm = TRUE) - mean(pred_by_pop, na.rm = TRUE)) %>%
+  arrange(FavoritesDiff)
 
 ```
 
@@ -745,3 +745,67 @@ Statistical conclusion about 1-3 teams and
 ### fix LA and NY
 
 ### average yearly cycle summary plots
+
+
+```{r}
+bw_Cats <- bw_Cats %>% left_join(bw_Favorites)
+
+bw_Cats <- bw_Cats %>% left_join(bw_Contender)
+
+#Replacing all NA's with 0's (to be able to compute differences)
+bw_Cats[is.na(bw_Cats)] <- 0
+
+bw_Cats$BWScore <- bw_Cats$FavoritesDiff + bw_Cats$ContendersDiff - bw_Cats$DarkHorse
+
+bw_Cats %>% arrange(-BWScore)
+```
+For each category of Dark Horse, Contenders, and Favorites, I computed the difference between the mean observed popularity score and mean predicted popularity from our model, for each NBA Team. I then used these 3 values to create a Bandwagon measure for each team. I added the values for Favorites and Contenders for each team, and then subtracted the value for Dark Horse. I used this formula because an indicator of the "Bandwagon effect" would be being more popular than predicted when they are performing well (Favorites or Contenders), and less popular than predicted when they are not performing well (Dark Horse). Thus, using this equation, larger values indicate teams that are more likely to experience the Bandwagon effect, while smaller values indicate that are more loyal or have less of a bandwagon effect. 
+
+From viewing the results of this, we see that the Warriors have by far the largest Bandwagon score, with a value of 12.63. The Cleveland Cavaliers have the next largest Bandwagon score, of 2.71. The teams with the lowest Bandwagon scores are the Orlando Magic, Dallas Mavericks, and Detroit Pistons, who have Bandwagon scores of -8.63, -6.79, and -6.52 respectively. 
+
+```{r}
+names(bw_Cats) <- c("Team", "DarkHorseDiff", "FavoriteDiff", "ContenderDiff", "BWScore")
+
+NBATeams <- NBATeams %>% left_join(bw_Cats)
+
+ggplot(NBATeams, aes(x = Team, y = BWScore, fill = Team)) + geom_point() + theme(axis.text.x=element_text(angle=45, hjust=1)) + 
+  guides(fill = FALSE)
+```
+
+
+
+```{r}
+bwscore.aov <- aov(BWScore ~ Team, data = NBATeams)
+summary(bwscore.aov)
+
+model.tables(bwscore.aov,"means",digits=3)
+
+
+test <- NBATeams %>% 
+  group_by(Team, BWScore) %>% 
+  mutate(z_score = (BWScore - mean(BWScore, na.rm = TRUE)) / sd(BWScore, na.rm = TRUE))
+
+
+test %>% group_by(Team) %>% summarize(mean = mean(z_score), sd = sd(z_score)) 
+```
+
+
+
+```{r}
+#Viewing how popularity scores for Warriors change over time
+gsw.query <- filter(NBATeams, Team=="GoldenStateWarriors")
+gsw.lm <- lm(Popularity~Season, data= gsw.query)
+summary(gsw.lm)
+```
+Here, we see that for the Golden State Warriors, the seasons that are significantly associated with popularity score are 2014, 2015, 2016, 2017 and 
+2018. The coefficients for these years are all also rather large, which indicates that the Warriors experienced a large increase in popularity during these years. 
+
+```{r}
+#Viewing how Popularity Scores for Cavaliers change over time
+cavs.query <- filter(NBATeams, Team=="ClevelandCavaliers")
+cavs.lm <- lm(Popularity~Season, data= cavs.query)
+summary(cavs.lm)
+```
+Here, we see that essentially exactly the same trend for the Cavaliers as we saw for the Warriors. Again, the seasons that are significantly associated with popularity score are 2014, 2015, 2016, 2017 and 2018. The coefficients for these years are all also rather large, which indicates that the Cavaliers also experienced a large increase in popularity during these years. 
+
+
