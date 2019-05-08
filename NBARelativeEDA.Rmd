@@ -98,28 +98,17 @@ NBATeams %>%
   ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line()
 ```
 In this first plot, we are comparing the popularity scores for the Cleveland
-Cavaliers and the Golden State Warriors, across all time points. We can see that
-the popularity scores for both teams never exceeded about 15 until 2015. In 2015
-we see a large increase in the popularity score for the Golden State Warriors.
-We also see large spikes in the popularity scores for both teams in what appears
-to be the middle of the years for 2016, 2017, and 2018. The Cavaliers and the 
-Warriors played each other in the NBA Finals for all 3 of these years, so this
-is likely the explanation for the large increase in popularity for these teams. 
+Cavaliers and the Golden State Warriors, across all time points. We can see that the popularity scores for both teams never exceeded about 15 until 2015. In 2015 we see a large increase in the popularity score for the Golden State Warriors.
+We also see large spikes in the popularity scores for both teams in what appears to be the middle of the years for 2016, 2017, and 2018. The Cavaliers and the Warriors played each other in the NBA Finals for all 3 of these years, so this is likely the explanation for the large increase in popularity for these teams. 
 
 
 
 In this second plot, we are examining the popularity scores for all 30 teams
 from April 2018 to June 2018. These dates encompass the duration of the 2018
 playoffs, so we are hoping this plot can help give us an idea of what teams 
-performed well in the NBA playoffs this year. Here we can see that the Cleveland
-Cavaliers had the highest popularity score for the entirety of the playoffs,
-with the Golden State Warriors following closely behind. This makes sense again
-because these two teams ended playing each other in the NBA Finals yet again.
-We also see a large cluster of teams near the bottm that have popularity scores
-that are hardly ever above 10 for these months. These all appear to be teams
-that did not make the NBA Finals in 2018. Thus, this graph seems to suggest that
-teams that perform well during the NBA playoffs tend to receive a large increase
-in search popularity. 
+performed well in the NBA playoffs this year. Here we can see that the ClevelandCavaliers had the highest popularity score for the entirety of the playoffs,with the Golden State Warriors following closely behind. This makes sense again because these two teams ended playing each other in the NBA Finals yet again.
+
+We also see a large cluster of teams near the bottm that have popularity scores that are hardly ever above 10 for these months. These all appear to be teams that did not make the NBA Finals in 2018. Thus, this graph seems to suggest that teams that perform well during the NBA playoffs tend to receive a large increase in search popularity. 
 
 ```{r}
 basic_model <- lm(Popularity ~ factor(MonthNum) + Team, data = NBATeams)
@@ -245,37 +234,14 @@ NBATeams %>%
   ggtitle("Washington Wizards Actual vs. Predicted Popularity")
 
 ```
-Here, we have fit a very basic linear model that attempts to predict popularity
-score, using month of the year and team as predictors. From the resuts of this
-model, we see that the months of May, June, July, August, September, and October
-are all significant predictors of popularity score. The coefficients for the
-months of May and June are both positive, which indicates that these months are
-associated with an increase in popularity score. This makes sense because the
-months of May and June are when the NBA Playoffs come to a close, and the NBA
-Finals typically begin towards the end of May. Contrastly, the months of July,
-August, September, and October all have negative coefficients, indicating 
-that these months are associated with decreases in popularity score. This also
-makes sense because these months all encompass the NBA offseason, in which no
-NBA games are played. There is not much going on in the NBA during these times
-aside from free agency and training camps, so we expect a decrese in search
-popularity throughout the NBA during these months. 
+Here, we have fit a very basic linear model that attempts to predict popularityscore, using month of the year and team as predictors. From the resuts of this model, we see that the months of May, June, July, August, September, and Octoberare all significant predictors of popularity score. The coefficients for the months of May and June are both positive, which indicates that these months are associated with an increase in popularity score. This makes sense because the months of May and June are when the NBA Playoffs come to a close, and the NBA Finals typically begin towards the end of May. Contrastly, the months of July, August, September, and October all have negative coefficients, indicating that these months are associated with decreases in popularity score. 
+
+This also makes sense because these months all encompass the NBA offseason, in which no NBA games are played. There is not much going on in the NBA during these times aside from free agency and training camps, so we expect a decrease in search popularity throughout the NBA during these months. 
 
 
-I have also plotted the popularity scores aross the months of the year for all
-16 teams that made the NBA Playoffs in 2018. I then overlaid a line in red for
-each NBA team, which represents the predicted popularity scores throughout the
-months of year. My hope is that comparing the predicted popularity scores to the
-actual probability scores with the teams that made the playoffs would allow me to see how this model is performing in terms of predicting popularity score
-during the months in which the playoffs occur. 
+I have also plotted the popularity scores aross the months of the year for all 16 teams that made the NBA Playoffs in 2018. I then overlaid a line in red for each NBA team, which represents the predicted popularity scores throughout the months of year. My hope is that comparing the predicted popularity scores to the actual probability scores with the teams that made the playoffs would allow me to see how this model is performing in terms of predicting popularity score during the months in which the playoffs occur. 
 
-After examining all 16 of the plots above, we can see that the model does have
-some difficulty in predicting the popularity scores for teams that do end up 
-making the playoffs. For the months of May and June, there is a large distance
-between the actual and predicted popularity scores for nearly all of these 16
-teams. The model is faily inconsistent as well, as it overpredicts popularity
-scores during these months for nearly half of the teams, and underpredicts
-popularity scores during these months for the other half of the teams. This
-indicates that we perhaps need to include another variable in our model that measures performance during the regular season or performance in the playoffs.
+After examining all 16 of the plots above, we can see that the model does have some difficulty in predicting the popularity scores for teams that do end up making the playoffs. For the months of May and June, there is a large distance between the actual and predicted popularity scores for nearly all of these 16 teams. The model is faily inconsistent as well, as it overpredicts popularity scores during these months for nearly half of the teams, and underpredicts popularity scores during these months for the other half of the teams. This indicates that we perhaps need to include another variable in our model that measures performance during the regular season or performance in the playoffs.
 
 
 ```{r}
@@ -776,6 +742,8 @@ From viewing the results of this, we see that the Warriors have by far the large
 
 ```{r}
 names(bw_Cats) <- c("Team", "DarkHorseDiff", "FavoriteDiff", "ContenderDiff", "BWScore")
+
+bw_Cats <- bw_Cats[, -6]
 
 NBATeams <- NBATeams %>% left_join(bw_Cats)
 
