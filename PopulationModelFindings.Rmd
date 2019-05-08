@@ -3,6 +3,77 @@ title: "Predicting NBA Fan Support by Population Size"
 output: html_notebook
 ---
 
+```{r, echo = FALSE}
+knitr::opts_chunk$set(error = TRUE)
+library(readr)
+#Reading in dataset
+#NBARel <- read.csv("/Users/Victor/Desktop/Senior Project/RelativeNBATrends.csv", header = TRUE)
+NBARel <- read.csv("./RelativeNBATrends.csv", header = TRUE)
+NBA_Team_Records <- read_csv("./NBA_Team_Records.csv")
+
+#Reshaping data from wide format to long format
+library(tidyverse)
+library(lubridate)
+NBATeams <- gather(NBARel, Team, Popularity, AtlantaHawks:WashingtonWizards, factor_key=TRUE)
+names(NBATeams)[1] <- "Date"
+
+#Creating new variable indicating month of year for each observation
+# MonthNum2 <- substr(as.character(NBATeams$Month), 6,7)
+# NBATeams$MonthNum <- MonthNum2
+
+# Make Month a datetime object
+NBATeams$Date <- parse_date_time(NBATeams$Date, orders = "ym")
+NBATeams$MonthNum <- month(NBATeams$Date)
+
+#Replacing all instances of Popularity scores of "<1" with 0
+NBATeams$Popularity<- str_replace(NBATeams$Popularity, "<1","0")
+
+#Setting Popularity variable to be numeric
+NBATeams$Popularity <- as.numeric(NBATeams$Popularity)
+#Replacing Population Size of Los Angeles Clippers to account for shared market
+NBATeams$Size <- ifelse(NBATeams$Team =="LosAngelesClippers", NBATeams$Size*0.1725, NBATeams$Size)
+
+#Replacing Population Size of Los Angeles Lakers to account for shared market
+NBATeams$Size <- ifelse(NBATeams$Team =="LosAngelesLakers", NBATeams$Size*0.8725, NBATeams$Size)
+
+#Replacing Population Size of Brooklyn Nets to account for shared market
+NBATeams$Size <- ifelse(NBATeams$Team =="BrooklynNets", NBATeams$Size*0.3072, NBATeams$Size)
+
+#Replacing Population Size of New York Knicks to account for shared market
+NBATeams$Size <- ifelse(NBATeams$Team =="NewYorkKnicks", NBATeams$Size*0.6928, NBATeams$Size)
+
+basic_model <- lm(Popularity ~ factor(MonthNum) + Team, data = NBATeams)
+
+summary(basic_model)
+
+library(modelr)
+NBATeams <- NBATeams %>% add_predictions(basic_model)
+
+NBATeams <- NBATeams %>% mutate(
+  Season = case_when(
+    month(Date) >= 10 & day(Date) > 15 ~ year(Date),  ## nuance cutoff
+    TRUE ~ year(Date) - 1
+  )
+)
+
+#Setting Season variable to be character instead of numeric
+NBATeams$Season <- as.character(NBATeams$Season)
+
+
+##Region/Market for each team ()
+
+
+#Merging dataset with another dataset containing team record, playoffs, etc.
+NBATeams <- left_join(NBATeams, NBA_Team_Records, by = c("Season", "Team")) 
+
+
+names(NBATeams)[10] <- "W.L."
+
+#NBATeams <- read_csv("./NBATeams_Cleaned.csv")
+
+```
+
+
 ```{r}
 popsize_model <- lm(Popularity ~ Size + factor(MonthNum):(W.L. + Playoffs)
                        ,na.action = na.exclude, data = NBATeams)
@@ -27,6 +98,18 @@ In the two plots above, I have plotted Actual vs Predicted Popularity for the Cl
 
 One issue that we had to correct for with this model is the fact that there are 2 teams that share a TV Market. The Los Angeles Lakers and Clippers share a market (as well as an arena), and the Brooklyn Nets and New York Knicks share a TV market as well. In order to quantify each of these 4 team's respective market share, I referred to the Nielsen Ratings for these teams. 
 
+```{r}
+NBATeams %>%
+  filter(Team == "BrooklynNets") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") + geom_line(aes(x = Date, y = pred_by_pop), col = "green")+
+  ggtitle("Actual vs. Predicted Popularity")
+
+NBATeams %>%
+  filter(Team == "NewYorkKnicks") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred), col = "red") + geom_line(aes(x = Date, y = pred_by_pop), col = "green")+
+  ggtitle("Actual vs. Predicted Popularity")
+```
+
 From the data available at https://www.sportsbusinessdaily.com/Journal/Issues/2019/02/18/Media/NBA-ratings.aspx I used the average rating for each of these 4 teams. The Lakers had an average rating of 2.59 and the Lakers had an average rating of 0.53. In order to calculate the market share percentage, I summed these two values and then divided each by the sum (eg: 2.59/(0.53 + 2.59) = 0.8725 for LA Lakers). Once all of these percentages were obtained, I multiplied the team's original TV Market Size value by this percentage to obtain their adjusted market size value.
 
 ```{r}
@@ -34,10 +117,17 @@ Summerpops <- NBATeams %>%
   group_by(Team) %>%
   filter(!is.na(Popularity)) %>% 
   filter(!is.na(pred_by_pop)) %>% 
-  filter(Date %within% interval("2004-7-01", "2018-10-01")) %>%
+  filter(month(Date) < 10 &  month(Date) > 6) %>%
   summarize(SummerPopDiff = mean(Popularity - pred_by_pop))
 
 t.test(Summerpops$SummerPopDiff)
+
+NBATeams %>% 
+  filter(!is.na(Popularity)) %>% 
+  filter(!is.na(pred_by_pop)) %>% 
+  filter(month(Date) < 10 &  month(Date) > 6) %>%
+  mutate(diff = Popularity - pred_by_pop) %>%
+  ggplot(aes(x = Team, y = diff)) + geom_boxplot()
 ```
 
 ```{r}
@@ -51,3 +141,15 @@ NBATeams %>%
   mutate(teststat = Popularity - pred_by_pop) 
 ```
 
+```{r}
+
+NBATeams %>%
+  filter(Team == c("ClevelandCavaliers", "LosAngelesLakers", "MiamiHeat")) %>%
+  ggplot(aes(x = Date, y = Popularity/pred_by_pop, color = Team)) + geom_line()
+```
+
+## negative predictions to 0
+
+## make final dataset that reads in properly
+
+## side by side to justify Nielsen adjustment

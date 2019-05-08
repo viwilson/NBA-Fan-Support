@@ -840,6 +840,6 @@ NBATeams$Size <- ifelse(NBATeams$Team =="NewYorkKnicks", NBATeams$Size*0.6928, N
 Here, we are correcting for the the fact the Lakers and Clippers, as well as the Nets and Knicks share a TV market. In order to quantify each of these 4 team's respective market share, I referred to the Nielsen Ratings. From the data available at https://www.sportsbusinessdaily.com/Journal/Issues/2019/02/18/Media/NBA-ratings.aspx I used the average rating for each of these 4 teams. The Lakers had an average rating of 2.59 and the Lakers had an average rating of 0.53. In order to calculate the market share percentage, I summed these two values and then divided each by the sum (eg: 2.59/(0.53 + 2.59)= 0.8725 for LA Lakers). Once all of these percentages were obtained, I multiplied the team's TV Market Size value by this percentage. 
 
 ```{r}
-
+#write.csv(NBATeams, "./NBATeams_Cleaned.csv")
 ```
 
