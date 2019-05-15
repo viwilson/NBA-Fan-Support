@@ -130,16 +130,6 @@ NBATeams %>%
   ggplot(aes(x = Team, y = diff)) + geom_boxplot()
 ```
 
-```{r}
-NBATeams %>%
-  group_by(factor(Team)) %>%
-  summarise_at(vars(BWScore), funs(mean(., na.rm=TRUE)))
-
-NBATeams %>%
-  group_by(Season) %>%
-  group_by(Team) %>%
-  mutate(teststat = Popularity - pred_by_pop) 
-```
 
 ```{r}
 
@@ -153,3 +143,131 @@ NBATeams %>%
 ## make final dataset that reads in properly
 
 ## side by side to justify Nielsen adjustment
+
+```{r}
+#Changing predicted values that are below 0 to be zero
+NBATeams$pred_by_pop <- ifelse(NBATeams$pred_by_pop < 0, 0, NBATeams$pred_by_pop)
+
+
+```
+
+
+```{r}
+
+NBATeams %>%
+  filter(Succ_Cat == "Dark Horse")
+  group_by(Season) %>%
+  group_by(Team) %>%
+  filter(Succ_Cat == "Dark Horse")
+  mutate(DHteststat = Popularity - pred_by_pop) 
+
+  
+#Differences in Ratios for Dark Horses
+bwpop_DarkHorse <- NBATeams %>% filter(Succ_Cat == "Dark Horse") %>%
+group_by(Team) %>% 
+summarize(DarkHorseDiff = mean(Popularity, na.rm = TRUE)/mean(pred_by_pop, na.rm = TRUE)) %>%
+arrange(DarkHorseDiff)
+bwpop_DarkHorse
+
+#Differences in Ratios for Contenders
+bwpop_Contender <- NBATeams %>% filter(Succ_Cat == "Contender") %>%
+group_by(Team) %>% 
+summarize(ContenderDiff = mean(Popularity, na.rm = TRUE)/mean(pred_by_pop, na.rm = TRUE)) %>%
+arrange(ContenderDiff)
+bwpop_Contender
+
+#Differences in Ratios for Favorites
+bwpop_Favorite <- NBATeams %>% filter(Succ_Cat == "Heavy Favorite") %>%
+group_by(Team) %>% 
+summarize(FavoriteDiff = mean(Popularity, na.rm = TRUE)/mean(pred_by_pop, na.rm = TRUE)) %>%
+arrange(FavoriteDiff)
+bwpop_Favorite
+
+#Joining Datasets
+BW_Ratio <- bwpop_DarkHorse %>% left_join(bwpop_Contender)
+
+#JoiningDatasets
+BW_Ratio <- BW_Ratio %>% left_join(bwpop_Favorite)
+
+#Changing NA's to be 0 in order to compute differences
+BW_Ratio[is.na(BW_Ratio)] <- 0
+
+BW_Ratio$BWScoreRatio <- BW_Ratio$FavoriteDiff + BW_Ratio$ContenderDiff - BW_Ratio$DarkHorseDiff
+
+BW_Ratio %>% arrange(-BWScoreRatio)
+
+
+
+```
+
+```{r}
+ggplot(BW_Ratio, aes(x = Team, y = BWScoreRatio, fill = Team)) + geom_point() + theme(axis.text.x=element_text(angle=45, hjust=1)) + 
+  guides(fill = FALSE)
+  
+```
+
+
+```{r}
+library(gganimate)
+library(gifski)
+library(png)
+theme_set(theme_bw())
+
+p <- NBATeams %>%
+  filter(Team == c("ClevelandCavaliers", "LosAngelesLakers", "MiamiHeat")) %>%
+  ggplot(aes(x = Date, y = Popularity, color = Team)) + geom_line() + ylim(0,100)
+
+p + transition_reveal(Date)
+
+```
+
+
+```{r}
+#Nielsen Adjustment Brooklyn Nets
+NBATeams %>%
+  filter(Team == "BrooklynNets" & Date %within% interval("2013-01-01", "2018-12-01")) %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred_by_pop), col = "green")+
+  ggtitle("Actual vs. Predicted Popularity")
+
+#Without Nielsen Adjustment
+#NBA_Unadj <- read_csv("./NBATeams_Nielsen_Unadj.csv")
+
+NBA_Unadj %>%
+  filter(Team == "BrooklynNets" & Date %within% interval("2013-01-01", "2018-12-01")) %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred_by_pop), col = "green")+
+  ggtitle("Actual vs. Predicted Popularity")
+
+
+```
+Here, we are comparing the fits of the predicted popularity scores against the observerd popularity scores for the Brooklyn Nets between 2013 and 2018 (because the Nets relocated to Brooklyn in 2013). The first graph shows the comparison of the predicted values, using the adjusted Nielsen values where Brooklyn is given roughly 30% of the New York Market share (instead of the previous full market share). 
+
+The second plot shows the predicted popularity scores against the observed the popularity scores, without the adjustment for the shared New York City market with the New York Knicks. In this model, we can see that since the Brooklyn Nets are being allotted the entire New York City market share, the model is greatly overpredicting popularity scores for the Nets throughout all time points.
+
+Thus, we proceeded with the corrected Nielsen population size for the Brooklyn Nets, where they are receiving 30% of the New York City market share.
+
+```{r}
+NBATeams %>%
+  filter(Team == "LosAngelesClippers") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred_by_pop), col = "green")+
+  ggtitle("Actual vs. Predicted Popularity")
+
+#Without Nielsen Adjustment
+#NBA_Unadj <- read_csv("./NBATeams_Nielsen_Unadj.csv")
+
+NBA_Unadj %>%
+  filter(Team == "LosAngelesClippers") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = pred_by_pop), col = "green")+
+  ggtitle("Actual vs. Predicted Popularity")
+```
+We also see similar results when viewing the predicted popularity scores for the Los Angeles Clippers. After adjusting the Nielsen population size, we see that the model is also no longer overpredicting the popularity scores for the Clippers. 
+
+#Creating Clean Final Datset
+```{r}
+names(NBATeams)
+
+#Deleting columns that are not used
+NBATeams <- NBATeams[, -c(7,12,13,14,15,16,17,18,20)]
+
+write.csv(NBATeams, "./NBATeams_Final.csv")
+```
+
