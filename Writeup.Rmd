@@ -1,0 +1,80 @@
+---
+title: "Outline"
+author: "YOUR NAME HERE"
+date: "5/15/2019"
+output: html_document
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Introduction
+
+- What is "bandwagoning"?
+- There are X NBA teams, markets range in size, little facts that might be relevant
+- Plan: make a model, deviations are fan behavior
+
+## Data
+
+- Data collection: gtrends, supplementary datasets inc pop size
+- Be specific about search volume by month rel to max ever
+
+## Time patterns
+
+- Summmary stats/plots: 
+  + pop over time for one example team
+  + small tidbits, but no model yet
+  + monthly diffs
+- Lebron for fun
+  
+# Building the model
+
+- Why predicting by month (not day, week, year, whatever)?
+- Why not  a time series?
+- Plots and output; 
+  + same example team
+  + overall model accuracy
+  
+## Note: Market size issue
+
+- how you adjusted NY and LA
+
+## Model takeaways
+
+- Summary of coeffs
+
+## Levels of success
+
+- Justify the 3 categories
+- Statistical!
+
+# Bandwagoning
+
+- reintroduce concept
+- Methodology re: model, and the categories
+- Same example: Discuss bandwagon interpet
+
+## BW measure: ratio of pred to real pop
+
+- Explain carefully
+- Illustrative plot  (ratio and timelines)
+- Statistical justification of "average team is not bandwagony" (why do we care?)
+
+## BW measure by category
+
+- Overall ratio by category  (ideally no difference - statistical test?)
+- Ratio by category for example team(s) including interesting one
+- (ANOVA for team across categories?)  All teams?
+
+(later = plot by season & season success?)
+
+# Final BW measure
+
+- Aggregate measure: how, and what do you expect from a boring team?
+- Justifications
+- Overall team plot
+- little discussions
+
+
+### references, acknowledgements
