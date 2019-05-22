@@ -201,6 +201,33 @@ BW_Ratio %>% arrange(-BWScoreRatio)
 ```
 
 ```{r}
+ratios <- NBATeams %>% 
+  select(Team, MonthNum, Season, Popularity, pred_by_pop, Succ_Cat, W.L.) %>%
+  mutate(
+    Ratio = Popularity/pred_by_pop
+  )
+
+ratios %>%
+  ggplot(aes(x = Succ_Cat, y = Ratio)) + geom_boxplot()
+
+ratios %>%
+  filter(Team == "GoldenStateWarriors") %>%
+ggplot(aes(x = Season, y = Ratio, fill = Succ_Cat)) + geom_boxplot()
+
+# ratios %>%
+#   filter(Team == "GoldenStateWarriors") %>%
+# ggplot(aes(x = W.L., y = Ratio)) + geom_point()
+
+gw <- ratios %>%
+  filter(Team == "HoustonRockets")
+
+anova(lm(Ratio ~ Succ_Cat, data = gw))
+
+
+```
+
+
+```{r}
 ggplot(BW_Ratio, aes(x = Team, y = BWScoreRatio, fill = Team)) + geom_point() + theme(axis.text.x=element_text(angle=45, hjust=1)) + 
   guides(fill = FALSE)
   
