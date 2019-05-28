@@ -20,14 +20,6 @@ references:
     issued:
       year: 2019
     URL: https://trends.google.com/trends/?geo=US
-  - id: R-pagedown2
-    author:
-    - family: Nielsen
-      given: Nielsen
-    title: 'Nielsen 2019 DMA Rankings'
-    issued:
-      year: 2019
-    URL: https://mediatracks.com/resources/nielsen-dma-rankings-2019/
 output:
   pagedown::poster_jacobs:
     self_contained: false
