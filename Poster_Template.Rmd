@@ -46,7 +46,13 @@ Lorem ipsum dolor sit amet, consectetur, nunc tellus pulvinar tortor, commodo el
 Introduction
 ================================================================================
 
-Lorem ipsum dolor **sit amet**, consectetur adipiscing elit. Donec ut volutpat elit. Sed laoreet accumsan mattis. Integer sapien tellus, auctor ac blandit eget, sollicitudin vitae lorem. Praesent dictum tempor pulvinar. Suspendisse potenti. Sed tincidunt varius ipsum, et porta nulla suscipit et. Etiam congue bibendum felis, ac dictum augue cursus a. **Donec** magna eros, iaculis sit amet placerat quis, laoreet id est.
+In the current age of sports, the fan support for a particular team is constantly changing, especially with the recent advent of social media. The amount of fan support for a team can vary due to several factors, such as population size of the city in which the team plays, amount of success attained by the team, among several other factors. The NBA is no different in this regard. There are 30 teams within the NBA, with teams varying drastically in regards to the market size of the city in which they play in.
+
+Largely in part to this, the term "bandwagon fan" has been floated around in discussion among NBA fans throughout recent years. According to Merriam Webster, a "bandwagoner" is defined as "a person who takes part in or becomes enthusiastic about something only when it is popular or fashionable". In regards to the NBA, "bandwagon fans" can be considered fans that show very little loyalty to a team, and only support them when they are performing well.
+
+With such a large difference in parity among teams in the current NBA, and the large increase of accusations of fan bases being deemed as "bandwagon", we were interested in analyzing the fan support of NBA teams over time. In order to find an answer to this question, we developed a plan to make a statistical model to predict NBA fan support, correcting for several factors that we believe affect a team's support. By doing this, our goal is to be able to state that any deviations from our predicted model and the observed team popularity are a result of fan behavior.
+
+
 
 ```{r, cars-plot, fig.width=6, fig.height=3, dev='svg', out.width='100%', fig.cap='Figure Caption.', echo=FALSE}
 par(mar = c(4, 4, .1, .1), las = 1)
@@ -61,24 +67,14 @@ Test citations @R-base @R-pagedown. See Figure \@ref(fig:cars-plot).
 
 
 
-Materials
+Methods
 ================================================================================
 
-The following materials were required to complete the research:
+The data for the measure of the popularity of a particular NBA Team was collected via Google Trends, which provides data on the relative popularity of a search term within the United States in Google's database dating back to 2004. Each point in their databae represents how popular a particular search term is in a given month, compared to the absolute maximum popularity value for that term throughout time. Since the data for a particular search term is relative to the maximum search history for that term, all popularity scores here are compared to absoulte maximum, which is the search history for the Golden State Warriors in June 2016. We must also note that the data only includes searches conducted within in the United States, so searches from other countries such as Canada (which is home to the Toronto Raptors) are not included in this dataset. This resulting dataset contains the popularity score for each NBA team for each month from January 2004 to February 2019 (the time of data collection). This dataset contains 182 observations for all 30 NBA teams, giving us a total sample size of 5460. 
+
+This dataset was merged with two other datasets that contained data on several variables related to team performance such as Win/Loss record for the season, whether or not the team made the playoffs, and how far the team advanced in the playoffs, and the market size for each city in the United States that is home to an NBA team, as measured by Nielsen Ratings. Just as with the Google Trends data, the Nielsen Ratings were only available for cities within the United States, we were unable to attain a market size value for the Toronto Raptors who play in Canada.
 
 
-- Curabitur pellentesque dignissim
-- Eu facilisis est tempus quis
-- Duis porta consequat lorem
-- Eu facilisis est tempus quis
-
-
-The materials were prepared according to the steps outlined below:
-
-1. Curabitur pellentesque dignissim
-1. Eu facilisis est tempus quis
-1. Duis porta consequat lorem
-1. Curabitur pellentesque dignissim
 
 
 

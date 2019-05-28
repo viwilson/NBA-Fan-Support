@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Victor Wilson, Kelly Bodwin, and Eric Tran" />
+    <meta name="date" content="2019-05-30" />
+    <title>Analyzing Fan Support of NBA Teams Over Time</title>
+
+        <link href="NBA_Bandwagon_SDSS_Poster_files/paged-0.2/css/poster-jacobs.css" rel="stylesheet" />
+    
+    
+    
+
+    
+  </head>
+  <body>
+
+
+<div class="poster-title">
+  <h1 class="title">Analyzing Fan Support of NBA Teams Over Time</h1>
+  <h2 class="author">Victor Wilson, Kelly Bodwin, and Eric Tran</h2>
+  <h2 class="institute">California Polytechnic State University - San Luis Obispo</h2>
+</div>
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In the current age of sports, the fan support for a particular team is constantly changing, especially with the recent advent of social media. The amount of fan support for a team can vary due to several factors, such as population size of the city in which the team plays, amount of success attained by the team, among several other factors. The NBA is no different in this regard. There are 30 teams within the NBA, with teams varying drastically in regards to the market size of the city in which they play in.</p>
+<p>Largely in part to this, the term “bandwagon fan” has been floated around in discussion among NBA fans throughout recent years. According to Merriam Webster, a “bandwagoner” is defined as “a person who takes part in or becomes enthusiastic about something only when it is popular or fashionable”. In regards to the NBA, “bandwagon fans” can be considered fans that show very little loyalty to a team, and only support them when they are performing well.</p>
+<p>With such a large difference in parity among teams in the current NBA, and the large increase of accusations of fan bases being deemed as “bandwagon”, we were interested in analyzing the fan support of NBA teams over time. In order to find an answer to this question, we developed a plan to make a statistical model to predict NBA fan support, correcting for several factors that we believe affect a team’s support. By doing this, our goal is to be able to state that any deviations from our predicted model and the observed team popularity are a result of fan behavior.</p>
+</div>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+<p>The data for the measure of the popularity of a particular NBA Team was collected via Google Trends, which provides data on the relative popularity of a search term within the United States in Google’s database dating back to 2004. Each point in their databae represents how popular a particular search term is in a given month, compared to the absolute maximum popularity value for that term throughout time. Since the data for a particular search term is relative to the maximum search history for that term, all popularity scores here are compared to absolute maximum, which is the search history for the Golden State Warriors in June 2016. We must also note that the data only includes searches conducted within in the United States, so searches from other countries such as Canada (which is home to the Toronto Raptors) are not included in this dataset. This resulting dataset contains the popularity score for each NBA team for each month from January 2004 to February 2019 (the time of data collection). This dataset contains 182 observations for all 30 NBA teams, giving us a total sample size of 5460.</p>
+<p>This dataset was merged with two other datasets that contained data on several variables related to team performance such as Win/Loss record for the season, whether or not the team made the playoffs, and how far the team advanced in the playoffs, and the market size for each city in the United States that is home to an NBA team, as measured by Nielsen Ratings. Just as with the Google Trends data, the Nielsen Ratings were only available for cities within the United States, we were unable to attain a market size value for the Toronto Raptors who play in Canada.</p>
+<p><img src="NBA_Bandwagon_SDSS_Poster_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Using the Boston Celtics as an example team, we can look at a plot of their popularity scores throughout time to get a sense of the trends in the data. Here, we see that the majority of the popularity scores do not exceed 20, aside from a few large spikes that each occur near the end of the season. We also see a bit of a yearly cycle throughout the data, with spikes occurring at around the some point each year (around the beginning of the NBA playoffs), and sharp drop-offs around the same time as well (around the beginning of the NBA off-season).</p>
+</div>
+<div id="research-question" class="section level1">
+<h1>Research Question</h1>
+<p>The research question of interest is:</p>
+<p><em>Can we measure the “bandwagon” level of a particular NBA team through a statistical model using various predictors including Win/Loss Percentage, TV Market Size, Level of Success in Playoffs, etc. by analyzing the deviations of our statistical model?</em></p>
+</div>
+<div id="model" class="section level1">
+<h1>Model</h1>
+<p>In the process of creating a statistical model to predict popularity scores for each month, we opted to utilize Multiple Linear Regression. We decided to use the predictor variables of market size, the interaction between each month of the year and Win/Loss percentage, and the interaction between each month of the year and playoff success (Did Not Make Playoffs, Lost in 1st Round, etc), with monthly popularity score as the response variable. We are predicting the popularity score for each month as opposed to each day, week, year, or other measure of time to match the Google Trends scores, since Google Trends only provides data for overall monthly popularity, when viewing all of the time points available (since 2004).</p>
+<p>We also looked into the possibility of developing a time series model, but the complexities that came along with this model did not appear to offer a feasible trade-off for any possibly gained information. Our model without the time series component also seemed to perform fairly well as is, so we proceeded without including the time series component.</p>
+<p><img src="NBA_Bandwagon_SDSS_Poster_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>The above plot compares the actual vs. predicted popularity scores, using the Boston Celtics as an example team once again. The red line represents the predicted popularity scores from our model, whereas the black line represents the actual popularity scores. We can see that our model does a fairly decent job of predicting the popularity scores, as the general trend of the lines appears to match pretty closely for the majority of the observations.</p>
+<p>Upon viewing the coefficients from the model, we find that the majority of the coefficients are statistically significant. The coefficients that seem to have the largest effect on popularity score are the following are Market Size, the interaction terms between month of the year and Win/Loss percentage, and the interaction terms for teams that make the NBA Finals and the months of May and June.</p>
+<p>We see that the largest coefficients by far are the coefficients for June:WonFinals and June:LostFinals. This suggests that teams that make the NBA Finals are associated with a large increase in popularity score in June, compared to teams that do not make the playoffs during this month. We also see that the coefficients for the May:WonFinals and June:LostFinals are fairly large as well. Overall, it appears that teams that make the NBA Finals tend to experience much larger popularity scores than teams that did not make the playoffs.</p>
+<p>These deviations in the observed popularity score and the predicted popularity score from the model can be viewed as fan behavior, due to the corrections our model makes. Our model corrects for market size, as this is included in the model, so we are taking into account that teams that play in a larger market will also likely have more fans. A team’s win/loss percentage is also included as a predictor variable in the model, this model also corrects for the fact that teams that are performing well will likely experience a higher amount of Google searches.</p>
+</div>
+<div id="bandwagon" class="section level1">
+<h1>Bandwagon</h1>
+<p><img src="NBA_Bandwagon_SDSS_Poster_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>The boxplot above, which compares the natural log of popularity scores across the different levels of playoff success, shows that there does appear to be a difference in popularity scores among the different categories of success attained in the playoffs. There appears to be 3 distinct groups of popularity in the boxplots above:</p>
+<p>Teams that either did not make the playoffs or lost in the 1st round
+Teams that either lost in the Conference Semifinals or Conference Finals
+Teams that either lost in the NBA Finals or won the NBA Finals.</p>
+<p>From the information gained from this, we can separate all NBA teams into 3 categories for each season, based on their level of success attained throughout the playoffs. We will define these categories as “Dark Horses”, “Contenders”, and “Heavy Favorites”. Teams that either do not make the playoffs or lose in the 1st Round of the playoffs will be categorized as “Dark Horse”. Meanwhile, teams that either advance past the 1st round of the playoffs, but proceed to lose in either the Conference Finals or Conference Finals will be categorized as “Contenders”. Finally, teams that proceed to the play in the NBA Finals will be categorized as “Heavy Favorites”.</p>
+<p>In order to be able to analyze whether certain teams are more prone to the “Bandwagon Effect”, we need to create a quantitative measure of “bandwagonness”. Using the traditional definition of a bandwagon fan, and our three categories of playoff success described above, we are able to create a “bandwagon measure”.</p>
+<p>This method mostly revolves around comparing the predicted popularity scores and observed popularity scores for each playoff success group. Since a bandwagon effect is commonly described as being much more popular than expected when a team is performing well, we can use these measures. For example, if a team’s predicted popularity score is much lower than their observed popularity score when they are performing well, this can be considered as an indicator of the bandwagon effect.</p>
+<p>In order to aggregate these bandwagon scores across the three levels, we create a ratio of the observed popularity score divided by the predicted popularity score for each group, and apply the following formula:</p>
+<p><span class="math display">\[BWOVerall = BWHeavyFavorite + BWContender - BWDarkHorse\]</span></p>
+<table>
+<caption><span id="tab:unnamed-chunk-7">Table 1: </span>Bandwagon Score by Team</caption>
+<thead>
+<tr class="header">
+<th align="left">Team</th>
+<th align="right">BWScoreRatio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">DenverNuggets</td>
+<td align="right">-0.0214553</td>
+</tr>
+<tr class="even">
+<td align="left">WashingtonWizards</td>
+<td align="right">0.1810852</td>
+</tr>
+<tr class="odd">
+<td align="left">PhoenixSuns</td>
+<td align="right">-0.1075645</td>
+</tr>
+<tr class="even">
+<td align="left">MinnesotaTimberwolves</td>
+<td align="right">-0.3276631</td>
+</tr>
+<tr class="odd">
+<td align="left">NewOrleansPelicans</td>
+<td align="right">-0.6626897</td>
+</tr>
+<tr class="even">
+<td align="left">OrlandoMagic</td>
+<td align="right">-0.1095405</td>
+</tr>
+<tr class="odd">
+<td align="left">AtlantaHawks</td>
+<td align="right">-0.1819387</td>
+</tr>
+<tr class="even">
+<td align="left">DallasMavericks</td>
+<td align="right">0.0514310</td>
+</tr>
+<tr class="odd">
+<td align="left">UtahJazz</td>
+<td align="right">-0.0414398</td>
+</tr>
+<tr class="even">
+<td align="left">NewYorkKnicks</td>
+<td align="right">0.1997732</td>
+</tr>
+<tr class="odd">
+<td align="left">Philadelphia76ers</td>
+<td align="right">-0.0500680</td>
+</tr>
+<tr class="even">
+<td align="left">DetroitPistons</td>
+<td align="right">0.1138544</td>
+</tr>
+<tr class="odd">
+<td align="left">HoustonRockets</td>
+<td align="right">0.2220796</td>
+</tr>
+<tr class="even">
+<td align="left">IndianaPacers</td>
+<td align="right">0.0792197</td>
+</tr>
+<tr class="odd">
+<td align="left">CharlotteHornets</td>
+<td align="right">-0.8629262</td>
+</tr>
+<tr class="even">
+<td align="left">PortlandTrailBlazers</td>
+<td align="right">0.3976182</td>
+</tr>
+<tr class="odd">
+<td align="left">BrooklynNets</td>
+<td align="right">0.0932811</td>
+</tr>
+<tr class="even">
+<td align="left">SacramentoKings</td>
+<td align="right">-0.5800236</td>
+</tr>
+<tr class="odd">
+<td align="left">ChicagoBulls</td>
+<td align="right">0.1766458</td>
+</tr>
+<tr class="even">
+<td align="left">SanAntonioSpurs</td>
+<td align="right">0.6597577</td>
+</tr>
+<tr class="odd">
+<td align="left">MemphisGrizzlies</td>
+<td align="right">-0.4693783</td>
+</tr>
+<tr class="even">
+<td align="left">LosAngelesClippers</td>
+<td align="right">0.3479837</td>
+</tr>
+<tr class="odd">
+<td align="left">OklahomaCityThunder</td>
+<td align="right">1.2308055</td>
+</tr>
+<tr class="even">
+<td align="left">GoldenStateWarriors</td>
+<td align="right">2.2288801</td>
+</tr>
+<tr class="odd">
+<td align="left">MiamiHeat</td>
+<td align="right">0.6698591</td>
+</tr>
+<tr class="even">
+<td align="left">BostonCeltics</td>
+<td align="right">0.7638829</td>
+</tr>
+<tr class="odd">
+<td align="left">LosAngelesLakers</td>
+<td align="right">0.4677366</td>
+</tr>
+<tr class="even">
+<td align="left">MilwaukeeBucks</td>
+<td align="right">-2.3648107</td>
+</tr>
+<tr class="odd">
+<td align="left">ClevelandCavaliers</td>
+<td align="right">-0.0453080</td>
+</tr>
+<tr class="even">
+<td align="left">TorontoRaptors</td>
+<td align="right">0.0000000</td>
+</tr>
+</tbody>
+</table>
+<p><img src="NBA_Bandwagon_SDSS_Poster_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+In the above plot, we we can see that the teams that appear to have the most “Bandwagon” evidence are the Golden State Warriors, and the Oklahoma City Thunder. This means that when these two teams are performing well, they experience much higher popularity scores than predicted, and when they are performing poorly, they experience much lower popularity scores than predicted.</p>
+<p>On the other end of the spectrum, the Milwaukee Bucks seem to have the least evidence of a “Bandwagon” fan base. This largely stems from the fact that the Bucks experienced much larger popularity scores than predicted when they were not performing well. This gives some credibility to the fan base to suggest that they continue to support the Bucks, even when they do not make the playoffs. The majority of the remaining NBA teams do not seem to have much evidence either way, in terms of their bandwagon score.</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>From our findings above, we can conclude that we are indeed able to accurately model the popularity of NBA teams, as measured by their monthly Google Search history. This model, which contains TV market size, Win/Loss percentage, month of the year, level of success attained in the playoffs, and the interactions between these variables performs quite well in predicting the popularity score of a particular NBA team for a given month.</p>
+<p><img src="NBA_Bandwagon_SDSS_Poster_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Another key takeaway from our model is that the Golden State Warriors by far have the strongest evidence of the “Bandwagon Effect”. In the plot above, the red line represents the predicted popularity scores for the Warriors, while the black line represents their observed popularity scores. We can see that there are several values in which their observed popularity score is much greater than their predicted popularity score. These values all occurred during the playoffs of the last four NBA seasons, in which the Warriors advanced to the NBA Finals each year. Thus, it appears that the Warriors have experienced a huge surge in popularity after their recent success.</p>
+</div>
+<div id="future-work" class="section level1">
+<h1>Future Work</h1>
+<p>Although our model already performs fairly in terms of predicting the popularity for a given month for a particular NBA team, we do believe that there are some future measures that can be taken to further improve this model. Our next step in this research process will likely involve utilizing an Auto-regressive (AR) model. An AR model is a statistical model in which the values from a time series are regressed on previous values from the same time series (REFERENCE). We believe that this will likely improve our model, since our data does follow a time series format, and there does seem to be a bit of a lingering effect from previous data values for certain teams. This seems to be most apparent for the months following a team playing in the NBA Finals.</p>
+<p>We would also like to attempt to apply this model and the research methods to other sports within the United States. While this model seemed to perform well for NBA teams, we are interested to find out if this model would also hold for other sports such as the MLB, the NHL, and the NFL.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div id="refs">
+
+</div>
+</div>
+<div id="acknowledgements" class="section level1" data-color="red">
+<h1>Acknowledgements</h1>
+<p>This poster presentation, as well as costs associated with travel and lodging was supported by the California Polytechnic State University Statistics Department</p>
+<p>I would also like to thank Dr. Kelly Bodwin (Cal Poly) for assistance in advising this research project, as well as Eric Tran (Cal Poly) for providing support and input.</p>
+</div>
+
+<script type="text/javascript">
+(function() {
+  // add appropriate classes to h1 and its parent div
+  var i, d, p, s, el, els = document.getElementsByTagName('h1');
+  for (i = 0; i < els.length; i++) {
+    el = els[i]; p = el.parentNode;
+    if (p.className === 'section level1') {
+      el.append(document.createElement('hr'));
+    }
+    p.className += ' section-' + (i + 1);
+    s = p.dataset['color'];
+    if (s) el.style.color = s;
+    s = p.dataset['backgroundColor'];
+    if (s) p.style.backgroundColor = s;
+    s = p.dataset['borderColor'];
+    if (s) {
+      el.style.backgroundColor = s;
+      p.style.borderColor = s;
+    }
+    d = document.createElement('div');
+    d.className = 'content';
+    while (el.nextSibling) {
+      d.append(el.nextSibling);
+    }
+    p.append(d);
+  }
+})();
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+  </body>
+</html>
