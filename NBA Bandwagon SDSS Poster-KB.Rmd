@@ -1,6 +1,6 @@
 ---
 title: "Analyzing Fan Support of NBA Teams Over Time"
-author: "Victor Wilson, Eric Tran, and Kelly Bodwin"
+author: "Victor Wilson and Kelly Bodwin"
 institute: "California Polytechnic State University - San Luis Obispo"
 date: "2019-05-30"
 references:
@@ -77,21 +77,23 @@ NBAData %>%
   ggtitle("Boston Celtics Popularity Over Time") + theme(plot.title = element_text(color="blue", size=18, face="bold"))
 ```
 
-We see a **yearly cycle** throughout the data, with spikes occurring at around the some point each year (around the start of the NBA season and the beginning of the NBA playoffs), and sharp drop-offs around the same time as well (around the beginning of the NBA off-season).
-
 
 Model
 ================================================================================
 
 Our model used multiple regression to **predict the monthly Google Trends popularity score for each NBA team**. The following predictor variables were found to be significant:
-* Market size
-* Month (i.e., stage of the NBA season)
-* Regular season win/loss percentage
-* Playoff success (Did Not Make Playoffs, Lost in 1st Round, etc)
-* Interaction effect between month and win/loss percentage
-* Interaction effect between month and playoff success
 
-The largest coefficients were for `June:WonFinals` and `June:LostFinals`. This makes intuitive sense; teams that make the NBA Finals are associated with a large increase in popularity score in June, compared to teams that are no longer playing in June.
+* Market size
+
+* Month (i.e., stage of the NBA season)
+
+* Regular season win/loss percentage
+
+* Playoff success (Did Not Make Playoffs, Lost in 1st Round, etc)
+
+* Interaction effect between month and win/loss percentage
+
+* Interaction effect between month and playoff success
 
 The following plot shows the **predicted popularity (red)** and **true popularity (black)** for the Boston Celtics.
 
@@ -103,8 +105,9 @@ NBAData %>%
 ```
 
 
+We see a **yearly cycle** throughout the data, with spikes occurring around the start of the NBA season and the beginning of the NBA playoffs and drop-offs in the offseason.  The model accurately captures these fluctuations.
 
-These **deviations** in the observed popularity score and the predicted popularity score from the model can be viewed as the effect of **fan behavior**, as our model corrects for external factors. 
+The **deviations** between the observed popularity score and the predicted popularity score from the model can be viewed as the effect of **fan behavior**. 
 
 
 
@@ -127,7 +130,7 @@ suppressWarnings(print(plt))
 
 ```
 
-Our choice of three categories is justifed by an ANOVA test and subsequent Tukey Honest Signficiant difference tests. [report some stats!]
+Our choice of three categories is justifed by an ANOVA test (F = 217, p < 0.001) and subsequent Tukey Honest Signficiant difference tests (p > 0.05 for pairwise comparisons of “Lost 1st Round - Did Not Make Playoffs”, “Lost Conf. Semis - Lost Conf. Finals”, and “Won Finals - Lost Finals”; p < 0.001 otherwise)
 
 
 Results {.block}
@@ -186,7 +189,7 @@ ggplot(aes(x = Team, y = BWScoreRatio, fill = BWScoreRatio < 1)) + geom_col() + 
   xlab("BW Score")
 ```
 
-Based on these scores, the **Golden State Warriors** have far and away the highest bandwagon score, while the **Orlando Magic, Dallas Mavericks,** and **Detroit Pistons** have the lowest.
+The **Golden State Warriors** have the highest bandwagon score, while the **Orlando Magic, Dallas Mavericks,** and **Detroit Pistons** have the lowest.
 
 
 Bandwagon Scores {.block}
@@ -199,7 +202,7 @@ $SR > 1$ implies fans supported the team more than the model predicts; $SR < 1$ 
 
 We then define the **overall bandwagon score** for a team to be a **combination of the average $PR$** in seasons with different levels of team success:
 
-$$BW = \frac{SR_{HeavyFavorite} * SR_{Contender}}{ SR_{DarkHorse}}$$
+$$BW = \frac{SR_{HeavyFavorite} * SR_{Contender}}{SR_{DarkHorse}}$$
 
 
 We expect teams with "bandwagon" fans to have popularity **above** the predicted level when the team is performing well (**"Contender"** or **"Heavy Favorite"**), and **below** the predicted level when the team is not performing well (**"Dark Horse"**)
@@ -236,7 +239,7 @@ Future Work
 References
 ================================================================================
 
-<div id="refs"></div>
+*Google Trends* (2004). https://trends.google.com/trends/?geo=US
 
 
 
