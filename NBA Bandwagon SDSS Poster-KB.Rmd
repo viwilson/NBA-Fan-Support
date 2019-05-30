@@ -66,7 +66,7 @@ We also included data from two other datasets: one containing information relate
 NBAData <- read.csv("./NBATeams_Final.csv", header = TRUE)
 
 #Converting Date variable to be Date object instead of factor
-NBAData$Date <-ymd(NBAData$Date)
+NBAData$Date <-mdy(NBAData$Date)
 
 ```
 
@@ -101,7 +101,7 @@ The following plot shows the **predicted popularity (red)** and **true popularit
 NBAData %>%
   filter(Team == "BostonCeltics" & Date %within% interval("2004-01-01", "2017-12-01")) %>%
   ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = Popularity), col = "black", lwd = 1.5) + geom_line(aes(x = Date, y = pred_by_pop), col = "red", lwd = 1.5)+
-  ggtitle(" Boston Celtics Actual vs. Predicted Popularity") + theme(plot.title = element_text(color="black", size=18, face="bold")) + scale_colour_manual(name="Legend", values = c("Actual" = "black", "Predicted" = "red"))
+  ggtitle("Boston Celtics Actual vs. Predicted Popularity") + theme(plot.title = element_text(color="black", size=16, face="bold")) + scale_colour_manual(name="Legend", values = c("Actual" = "black", "Predicted" = "red"))
 ```
 
 
@@ -240,6 +240,9 @@ References
 ================================================================================
 
 *Google Trends* (2004). https://trends.google.com/trends/?geo=US
+
+*2018 Nielsen DMA Rankings* (2018). https://www.nielsen.com/content/dam/corporate/us/en/public%20factsheets/tv/2018-19-dma-ranker.pdf
+
 
 
 
