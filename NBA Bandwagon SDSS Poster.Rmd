@@ -40,18 +40,16 @@ library(ggridges)
 Introduction
 ================================================================================
 
-In the current age of sports, the fan support for a particular team is constantly changing, especially with the recent advent of social media. The amount of fan support for a team can vary due to several factors, such as population size of the city in which the team plays, amount of success attained by the team, among several other factors. The NBA is no different in this regard. There are 30 teams within the NBA, with teams varying drastically in regards to the market size of the city in which they play in.
+The amount of fan support for a particular team tends to vary throughout the years, and teams within the same league can vary due several factors, such as population size of the city in which the team plays, amount of success attained by the team, among several other factors. The NBA is no different in this regard. Largely in part to this, the term "bandwagon fan" has been floated around in discussion among NBA fans throughout recent years, which typically refers to fans who are not loyal to their teams, and only support them when they are performing well. 
 
-Largely in part to this, the term "bandwagon fan" has been floated around in discussion among NBA fans throughout recent years. According to Merriam Webster, a "bandwagoner" is defined as "a person who takes part in or becomes enthusiastic about something only when it is popular or fashionable". In regards to the NBA, "bandwagon fans" can be considered fans that show very little loyalty to a team, and only support them when they are performing well.
-
-With such a large difference in parity among teams in the current NBA, and the large increase of accusations of fan bases being deemed as "bandwagon", we were interested in analyzing the fan support of NBA teams over time. In order to find an answer to this question, we developed a plan to make a statistical model to predict NBA fan support, correcting for several factors that we believe affect a team's support. By doing this, our goal is to be able to state that any deviations from our predicted model and the observed team popularity are a result of fan behavior.
+With such a large difference in parity among teams in the current NBA, we were interested in analyzing the fan support of NBA teams over time. In order to answer to this question, we developed a plan to make a statistical model to predict NBA fan support, correcting for several factors that we believe affect a team's support. By doing this, our goal is to be able to state that any deviations from our predicted model and the observed team popularity are a result of fan behavior.
 
 
 
 Methods
 ================================================================================
 
-The data for the measure of the popularity of a particular NBA Team was collected via Google Trends, which provides data on the relative popularity of a search term within the United States in Google's database dating back to 2004. Each point in their databae represents how popular a particular search term is in a given month, compared to the absolute maximum popularity value for that term throughout time. Since the data for a particular search term is relative to the maximum search history for that term, all popularity scores here are compared to absolute maximum, which is the search history for the Golden State Warriors in June 2016. We must also note that the data only includes searches conducted within in the United States, so searches from other countries such as Canada (which is home to the Toronto Raptors) are not included in this dataset. This resulting dataset contains the popularity score for each NBA team for each month from January 2004 to February 2019 (the time of data collection). This dataset contains 182 observations for all 30 NBA teams, giving us a total sample size of 5460. 
+The data for the measure of the popularity of a particular NBA Team was collected via Google Trends, which provides data on the monthly relative popularity of a search term . This data however, is relative to the absolute maximum value for each team, so to correct for this we compared all values to the overall maximum across all teams (Golden State Warriors in June 2016). This data was also only available for the United States, so searches from other countries such as Canada were not included here. 
 
 This dataset was merged with two other datasets that contained data on several variables related to team performance such as Win/Loss record for the season, whether or not the team made the playoffs, and how far the team advanced in the playoffs, and the market size for each city in the United States that is home to an NBA team, as measured by Nielsen Ratings. Just as with the Google Trends data, the Nielsen Ratings were only available for cities within the United States, we were unable to attain a market size value for the Toronto Raptors who play in Canada.
 
@@ -71,7 +69,7 @@ NBAData %>%
   ggtitle("Boston Celtics Popularity Over Time") + theme(plot.title = element_text(color="blue", size=18, face="bold"))
 ```
 
-Using the Boston Celtics as an example team, we can look at a plot of their popularity scores throughout time to get a sense of the trends in the data. Here, we see that the majority of the popularity scores do not exceed 20, aside from a few large spikes that each occur near the end of the season. We also see a bit of a yearly cycle throughout the data, with spikes occurring at around the some point each year (around the beginning of the NBA playoffs), and sharp drop-offs around the same time as well (around the beginning of the NBA off-season).
+Using the Boston Celtics as an example team, we can look at a plot of their popularity scores throughout time to get a sense of the trends in the data. Here, we see that a general yearly trend appears, with spikes occuring around the same months through multiple years, and sharp drop-offs also occuring around similar months throughout the years.
 
 
 Research Question
@@ -98,13 +96,7 @@ NBAData %>%
   ggtitle(" Boston Celtics Actual vs. Predicted Popularity") + theme(plot.title = element_text(color="black", size=18, face="bold")) + scale_colour_manual(name="Legend", values = c("Actual" = "black", "Predicted" = "red"))
 ```
 
-The above plot compares the actual vs. predicted popularity scores, using the Boston Celtics as an example team once again. The red line represents the predicted popularity scores from our model, whereas the black line represents the actual popularity scores. We can see that our model does a fairly decent job of predicting the popularity scores, as the general trend of the lines appears to match pretty closely for the majority of the observations. 
-
-Upon viewing the coefficients from the model, we find that the majority of the coefficients are statistically significant. The coefficients that seem to have the largest effect on popularity score are the following are Market Size, the interaction terms between month of the year and Win/Loss percentage, and the interaction terms for teams that make the NBA Finals and the months of May and June. 
-
-We see that the largest coefficients by far are the coefficients for June:WonFinals and June:LostFinals. This suggests that teams that make the NBA Finals are associated with a large increase in popularity score in June, compared to teams that do not make the playoffs during this month. We also see that the coefficients for the May:WonFinals and June:LostFinals are fairly large as well. Overall, it appears that teams that make the NBA Finals tend to experience much larger popularity scores than teams that did not make the playoffs. 
-
-These deviations in the observed popularity score and the predicted popularity score from the model can be viewed as fan behavior, due to the corrections our model makes. Our model corrects for market size, as this is included in the model, so we are taking into account that teams that play in a larger market will also likely have more fans. A team's win/loss percentage is also included as a predictor variable in the model, this model also corrects for the fact that teams that are performing well will likely experience a higher amount of Google searches. 
+Shown above, the red line represents the predicted popularity scores from our model, whereas the black line represents the actual popularity scores. We can see that our model does a fairly decent job of predicting the popularity scores, and tends to follow the trends in the data well. Upon viewing the coefficients from the model, we find that Market Size, the interaction terms between month of the year and Win/Loss percentage, and the interaction terms for teams that make the NBA Finals and the months of May and June have the largest effects on popularity. Overall, it appears that teams that make the NBA Finals tend to experience much larger popularity scores than teams that did not make the playoffs. Our model takes into account population size and the success level of the team, to correct for the fact that teams that are performing well will likely have higher amounts of searches. 
 
 
 Bandwagon 
@@ -117,21 +109,27 @@ plt <- ggplot(NBAData, aes(x = log(Popularity+1), y = Playoffs, fill = Succ_Cat)
 suppressWarnings(print(plt))
 
 ```
+```{r}
+POIndAov <- lm(Popularity~Playoffs, data=NBAData)
+anova(POIndAov)
 
-The boxplot above, which compares the natural log of popularity scores across the different levels of playoff success, shows that there does appear to be a difference in popularity scores among the different categories of success attained in the playoffs. There appears to be 3 distinct groups of popularity in the boxplots above:
+TukeyHSD(aov(POIndAov))
+
+
+
+```
+
+
+The boxplot above, which compares the natural log of popularity scores across the different levels of playoff success, shows that there does appear to be a difference in popularity scores among the different categories of success attained in the playoffs. An ANOVA analysis across these six groups returns a p-value of essentially 0, indicating that there is a difference amongst this six groups. A Tukey HSD analysis reveals that the only 3 pariwise comparisons that are not significant are "Lost 1st Round - Did Not Make Playoffs", "Lost Conf. Semis - Lost Conf. Finals", and "Won Finals - Lost Finals".  
+
+There appears to be 3 distinct groups of popularity in the boxplots above:
 
 Teams that either did not make the playoffs or lost in the 1st round
 Teams that either lost in the Conference Semifinals or Conference Finals
 Teams that either lost in the NBA Finals or won the NBA Finals.
 
-From the information gained from this, we can separate all NBA teams into 3 categories for each season, based on their level of success attained throughout the playoffs. We will define these categories as "Dark Horses", "Contenders", and "Heavy Favorites". Teams that either do not make the playoffs or lose in the 1st Round of the playoffs will be categorized as "Dark Horse". Meanwhile, teams that either advance past the 1st round of the playoffs, but proceed to lose in either the Conference Finals or Conference Finals will be categorized as "Contenders". Finally, teams that proceed to the play in the NBA Finals will be categorized as "Heavy Favorites".
 
-
-In order to be able to analyze whether certain teams are more prone to the "Bandwagon Effect", we need to create a quantitative measure of "bandwagonness". Using the traditional definition of a bandwagon fan, and our three categories of playoff success described above, we are able to create a "bandwagon measure".
-
-This method mostly revolves around comparing the predicted popularity scores and observed popularity scores for each playoff success group. Since a bandwagon effect is commonly described as being much more popular than expected when a team is performing well, we can use these measures. For example, if a team's predicted popularity score is much lower than their observed popularity score when they are performing well, this can be considered as an indicator of the bandwagon effect.
-
-In order to aggregate these bandwagon scores across the three levels, we create a ratio of the observed popularity score divided by the predicted popularity score for each group, and apply the following formula:
+From this, we can seperate teams into 3 categories which are "Dark Horses", "Contenders", and "Heavy Favorites". We then proceed to create a "bandwagon" metric, which consists of comparing the predicted popularity scores and observed popularity scores for each playoff success group, for each team. For example, if a team's predicted popularity score is much lower than their observed popularity score when they are performing well, this can be considered as an indicator of the bandwagon effect and vice-versa. In order to aggregate these bandwagon scores across the three levels, we create a ratio of the observed popularity score divided by the predicted popularity score for each group, and apply the following formula:
 
 $$BW_{Overall} = BW_{HeavyFavorite} + BW_{Contender} - BW_{DarkHorse}$$
 
