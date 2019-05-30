@@ -119,8 +119,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 
 ## Response: Popularity
 ##             Df Sum Sq Mean Sq F value    Pr(&gt;F)    
-## Playoffs     5  21846  4369.1  217.26 &lt; 2.2e-16 ***
-## Residuals 5454 109679    20.1                      
+## Playoffs     5  21483  4296.7  212.96 &lt; 2.2e-16 ***
+## Residuals 5454 110041    20.2                      
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">TukeyHSD</span>(<span class="kw">aov</span>(POIndAov))</code></pre>
@@ -131,37 +131,37 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 
 ## $Playoffs
 ##                                                 diff         lwr
-## Lost 1st Round-Did Not Make Playoffs     0.412860171 -0.01468622
-## Lost Conf. Finals-Did Not Make Playoffs  2.255688885  1.54029919
-## Lost Conf. Semis-Did Not Make Playoffs   1.281222383  0.72329639
-## Lost Finals-Did Not Make Playoffs        8.039820267  7.06154655
-## Won Finals-Did Not Make Playoffs         8.034325761  7.05605205
-## Lost Conf. Finals-Lost 1st Round         1.842828714  1.08361086
-## Lost Conf. Semis-Lost 1st Round          0.868362212  0.25524660
-## Lost Finals-Lost 1st Round               7.626960095  6.61619365
-## Won Finals-Lost 1st Round                7.621465590  6.61069915
-## Lost Conf. Semis-Lost Conf. Finals      -0.974466503 -1.81404809
-## Lost Finals-Lost Conf. Finals            5.784131381  4.62196302
-## Won Finals-Lost Conf. Finals             5.778636876  4.61646852
-## Lost Finals-Lost Conf. Semis             6.758597884  5.68615474
-## Won Finals-Lost Conf. Semis              6.753103378  5.68066024
-## Won Finals-Lost Finals                  -0.005494505 -1.34559612
+## Lost 1st Round-Did Not Make Playoffs     0.377668106 -0.05028466
+## Lost Conf. Finals-Did Not Make Playoffs  2.017931517  1.29072207
+## Lost Conf. Semis-Did Not Make Playoffs   1.246030318  0.68741291
+## Lost Finals-Did Not Make Playoffs        8.004628201  7.02487104
+## Won Finals-Did Not Make Playoffs         7.999133696  7.01937653
+## Lost Conf. Finals-Lost 1st Round         1.640263411  0.86959329
+## Lost Conf. Semis-Lost 1st Round          0.868362212  0.25423498
+## Lost Finals-Lost 1st Round               7.626960095  6.61452593
+## Won Finals-Lost 1st Round                7.621465590  6.60903142
+## Lost Conf. Semis-Lost Conf. Finals      -0.771901199 -1.62210251
+## Lost Finals-Lost Conf. Finals            5.986696684  4.81592217
+## Won Finals-Lost Conf. Finals             5.981202179  4.81042767
+## Lost Finals-Lost Conf. Semis             6.758597884  5.68438525
+## Won Finals-Lost Conf. Semis              6.753103378  5.67889075
+## Won Finals-Lost Finals                  -0.005494505 -1.34780724
 ##                                                upr     p adj
-## Lost 1st Round-Did Not Make Playoffs     0.8404066 0.0654806
-## Lost Conf. Finals-Did Not Make Playoffs  2.9710786 0.0000000
-## Lost Conf. Semis-Did Not Make Playoffs   1.8391484 0.0000000
-## Lost Finals-Did Not Make Playoffs        9.0180940 0.0000000
-## Won Finals-Did Not Make Playoffs         9.0125995 0.0000000
-## Lost Conf. Finals-Lost 1st Round         2.6020466 0.0000000
-## Lost Conf. Semis-Lost 1st Round          1.4814778 0.0007769
-## Lost Finals-Lost 1st Round               8.6377265 0.0000000
-## Won Finals-Lost 1st Round                8.6322320 0.0000000
-## Lost Conf. Semis-Lost Conf. Finals      -0.1348849 0.0121274
-## Lost Finals-Lost Conf. Finals            6.9462997 0.0000000
-## Won Finals-Lost Conf. Finals             6.9408052 0.0000000
-## Lost Finals-Lost Conf. Semis             7.8310410 0.0000000
-## Won Finals-Lost Conf. Semis              7.8255465 0.0000000
-## Won Finals-Lost Finals                   1.3346071 1.0000000</code></pre>
+## Lost 1st Round-Did Not Make Playoffs    0.80562087 0.1195993
+## Lost Conf. Finals-Did Not Make Playoffs 2.74514096 0.0000000
+## Lost Conf. Semis-Did Not Make Playoffs  1.80464772 0.0000000
+## Lost Finals-Did Not Make Playoffs       8.98438536 0.0000000
+## Won Finals-Did Not Make Playoffs        8.97889086 0.0000000
+## Lost Conf. Finals-Lost 1st Round        2.41093353 0.0000000
+## Lost Conf. Semis-Lost 1st Round         1.48248944 0.0007987
+## Lost Finals-Lost 1st Round              8.63939426 0.0000000
+## Won Finals-Lost 1st Round               8.63389976 0.0000000
+## Lost Conf. Semis-Lost Conf. Finals      0.07830011 0.1002637
+## Lost Finals-Lost Conf. Finals           7.15747120 0.0000000
+## Won Finals-Lost Conf. Finals            7.15197669 0.0000000
+## Lost Finals-Lost Conf. Semis            7.83281052 0.0000000
+## Won Finals-Lost Conf. Semis             7.82731601 0.0000000
+## Won Finals-Lost Finals                  1.33681823 1.0000000</code></pre>
 <p>The boxplot above, which compares the natural log of popularity scores across the different levels of playoff success, shows that there does appear to be a difference in popularity scores among the different categories of success attained in the playoffs. An ANOVA analysis across these six groups returns a p-value of essentially 0, indicating that there is a difference amongst this six groups. A Tukey HSD analysis reveals that the only 3 pariwise comparisons that are not significant are “Lost 1st Round - Did Not Make Playoffs”, “Lost Conf. Semis - Lost Conf. Finals”, and “Won Finals - Lost Finals”.</p>
 <p>There appears to be 3 distinct groups of popularity in the boxplots above:</p>
 <p>Teams that either did not make the playoffs or lost in the 1st round

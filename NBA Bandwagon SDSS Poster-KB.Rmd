@@ -68,6 +68,8 @@ NBAData <- read.csv("./NBATeams_Final.csv", header = TRUE)
 #Converting Date variable to be Date object instead of factor
 NBAData$Date <-mdy(NBAData$Date)
 
+NBAData <- NBAData %>% filter(Season < 2017)
+
 ```
 
 ```{r, echo=FALSE, include = FALSE}
@@ -84,22 +86,17 @@ Model
 Our model used multiple regression to **predict the monthly Google Trends popularity score for each NBA team**. The following predictor variables were found to be significant:
 
 * Market size
-
 * Month (i.e., stage of the NBA season)
-
 * Regular season win/loss percentage
-
 * Playoff success (Did Not Make Playoffs, Lost in 1st Round, etc)
-
 * Interaction effect between month and win/loss percentage
-
 * Interaction effect between month and playoff success
 
 The following plot shows the **predicted popularity (red)** and **true popularity (black)** for the Boston Celtics.
 
 ```{r, echo=FALSE}
 NBAData %>%
-  filter(Team == "BostonCeltics" & Date %within% interval("2004-01-01", "2017-12-01")) %>%
+  filter(Team == "BostonCeltics" & year(Date) < 2019) %>%
   ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = Popularity), col = "black", lwd = 1.5) + geom_line(aes(x = Date, y = pred_by_pop), col = "red", lwd = 1.5)+
   ggtitle("Boston Celtics Actual vs. Predicted Popularity") + theme(plot.title = element_text(color="black", size=16, face="bold")) + scale_colour_manual(name="Legend", values = c("Actual" = "black", "Predicted" = "red"))
 ```
@@ -122,9 +119,10 @@ Our goal is to define bandwagon fanbases to be those that **oversupport** their 
 
 These categories were derived from a study of the patterns of fan support relative to the level of team success. The plot below shows the three distinct categories across the six possible playoff outcomes.
 
-```{r, echo=FALSE, message = FALSE}
+```{r, echo=FALSE, message = FALSE, fig.height = 5.5}
 plt <- ggplot(NBAData, aes(x = log(Popularity+1), y = Playoffs, fill = Succ_Cat)) + geom_density_ridges(na.rm = TRUE, quantile_lines = TRUE, quantiles = 2, alpha = 0.7) +  theme(axis.text.x=element_text(angle=45, hjust=1)) + 
-  guides(fill = FALSE)
+  guides(fill = FALSE) +
+  ggtitle("Popularity Distributions by Season Results")
 
 suppressWarnings(print(plt))
 
@@ -200,9 +198,9 @@ $$SR = \frac{\text{Mean observed popularity}}{\text{Mean popularity predicted by
 
 $SR > 1$ implies fans supported the team more than the model predicts; $SR < 1$ suggest fans undersupported their team in that month.
 
-We then define the **overall bandwagon score** for a team to be a **combination of the average $PR$** in seasons with different levels of team success:
+We then define the **overall bandwagon score** for a team:
 
-$$BW = \frac{SR_{HeavyFavorite} * SR_{Contender}}{SR_{DarkHorse}}$$
+$$BW = \frac{SR_{HeavyFavorite} \times SR_{Contender}}{SR_{DarkHorse}}$$
 
 
 We expect teams with "bandwagon" fans to have popularity **above** the predicted level when the team is performing well (**"Contender"** or **"Heavy Favorite"**), and **below** the predicted level when the team is not performing well (**"Dark Horse"**)
@@ -241,8 +239,7 @@ References
 
 *Google Trends* (2004). https://trends.google.com/trends/?geo=US
 
-*2018 Nielsen DMA Rankings* (2018). https://www.nielsen.com/content/dam/corporate/us/en/public%20factsheets/tv/2018-19-dma-ranker.pdf
-
+*2018 Nielsen DMA Rankings* (2018). https://www.nielsen.com/
 
 
 

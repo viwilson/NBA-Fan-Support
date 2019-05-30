@@ -45,12 +45,12 @@
 <h1>Model</h1>
 <p>Our model used multiple regression to <strong>predict the monthly Google Trends popularity score for each NBA team</strong>. The following predictor variables were found to be significant:</p>
 <ul>
-<li><p>Market size</p></li>
-<li><p>Month (i.e., stage of the NBA season)</p></li>
-<li><p>Regular season win/loss percentage</p></li>
-<li><p>Playoff success (Did Not Make Playoffs, Lost in 1st Round, etc)</p></li>
-<li><p>Interaction effect between month and win/loss percentage</p></li>
-<li><p>Interaction effect between month and playoff success</p></li>
+<li>Market size</li>
+<li>Month (i.e., stage of the NBA season)</li>
+<li>Regular season win/loss percentage</li>
+<li>Playoff success (Did Not Make Playoffs, Lost in 1st Round, etc)</li>
+<li>Interaction effect between month and win/loss percentage</li>
+<li>Interaction effect between month and playoff success</li>
 </ul>
 <p>The following plot shows the <strong>predicted popularity (red)</strong> and <strong>true popularity (black)</strong> for the Boston Celtics.</p>
 <p><img src="NBA_Bandwagon_SDSS_Poster-KB_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
@@ -80,8 +80,8 @@
 <p>First, we define the <strong>support ratio</strong> for a team in a given year to be:</p>
 <p><span class="math display">\[SR = \frac{\text{Mean observed popularity}}{\text{Mean popularity predicted by model}}\]</span></p>
 <p><span class="math inline">\(SR &gt; 1\)</span> implies fans supported the team more than the model predicts; <span class="math inline">\(SR &lt; 1\)</span> suggest fans undersupported their team in that month.</p>
-<p>We then define the <strong>overall bandwagon score</strong> for a team to be a <strong>combination of the average <span class="math inline">\(PR\)</span></strong> in seasons with different levels of team success:</p>
-<p><span class="math display">\[BW = \frac{SR_{HeavyFavorite} * SR_{Contender}}{SR_{DarkHorse}}\]</span></p>
+<p>We then define the <strong>overall bandwagon score</strong> for a team:</p>
+<p><span class="math display">\[BW = \frac{SR_{HeavyFavorite} \times SR_{Contender}}{SR_{DarkHorse}}\]</span></p>
 <p>We expect teams with “bandwagon” fans to have popularity <strong>above</strong> the predicted level when the team is performing well (<strong>“Contender”</strong> or <strong>“Heavy Favorite”</strong>), and <strong>below</strong> the predicted level when the team is not performing well (<strong>“Dark Horse”</strong>)</p>
 <p><span class="math inline">\(BW &gt; 1\)</span> indicates bandwagon behavior (higher than predicted support when team is good), while</p>
 <p><span class="math inline">\(BW &lt; 1\)</span> indicates anti-bandwagon behavior (higher than predicted support when team is not good)</p>
@@ -96,7 +96,7 @@
 <div id="references" class="section level1">
 <h1>References</h1>
 <p><em>Google Trends</em> (2004). <a href="https://trends.google.com/trends/?geo=US" class="uri">https://trends.google.com/trends/?geo=US</a></p>
-<p><em>2018 Nielsen DMA Rankings</em> (2018). <a href="https://www.nielsen.com/content/dam/corporate/us/en/public%20factsheets/tv/2018-19-dma-ranker.pdf" class="uri">https://www.nielsen.com/content/dam/corporate/us/en/public%20factsheets/tv/2018-19-dma-ranker.pdf</a></p>
+<p><em>2018 Nielsen DMA Rankings</em> (2018). <a href="https://www.nielsen.com/" class="uri">https://www.nielsen.com/</a></p>
 </div>
 <div id="acknowledgements" class="section level1" data-color="red">
 <h1>Acknowledgements</h1>
