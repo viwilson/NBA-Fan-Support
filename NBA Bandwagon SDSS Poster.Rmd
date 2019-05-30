@@ -1,6 +1,6 @@
 ---
 title: "Analyzing Fan Support of NBA Teams Over Time"
-author: "Victor Wilson, Kelly Bodwin, and Eric Tran"
+author: "Victor Wilson, Eric Tran, and Kelly Bodwin"
 institute: "California Polytechnic State University - San Luis Obispo"
 date: "2019-05-30"
 references:
@@ -33,6 +33,7 @@ library(dplyr)
 library(gganimate)
 library(car)
 library(stats)
+library(ggridges)
 ```
 
 
@@ -109,8 +110,8 @@ These deviations in the observed popularity score and the predicted popularity s
 Bandwagon 
 ================================================================================
 
-```{r, echo=FALSE}
-plt <- ggplot(NBAData, aes(y = log(Popularity), x = Playoffs, fill = Playoffs)) +    geom_boxplot() +  theme(axis.text.x=element_text(angle=45, hjust=1)) + 
+```{r, echo=FALSE, message = FALSE}
+plt <- ggplot(NBAData, aes(x = log(Popularity+1), y = Playoffs, fill = Succ_Cat)) + geom_density_ridges(na.rm = TRUE, quantile_lines = TRUE, quantiles = 2, alpha = 0.7) +  theme(axis.text.x=element_text(angle=45, hjust=1)) + 
   guides(fill = FALSE)
 
 suppressWarnings(print(plt))
@@ -132,8 +133,10 @@ This method mostly revolves around comparing the predicted popularity scores and
 
 In order to aggregate these bandwagon scores across the three levels, we create a ratio of the observed popularity score divided by the predicted popularity score for each group, and apply the following formula:
 
-$$BWOVerall = BWHeavyFavorite + BWContender - BWDarkHorse$$
+$$BW_{Overall} = BW_{HeavyFavorite} + BW_{Contender} - BW_{DarkHorse}$$
 
+Conclusion
+================================================================================
 
 ```{r, include=FALSE}
 #Differences in ratios for Dark Horse
@@ -184,7 +187,7 @@ In the above plot, we we can see that the teams that appear to have the most "Ba
 On the other end of the spectrum, the Milwaukee Bucks seem to have the least evidence of a "Bandwagon" fan base. This largely stems from the fact that the Bucks experienced much larger popularity scores than predicted when they were not performing well. This gives some credibility to the fan base to suggest that they continue to support the Bucks, even when they do not make the playoffs. The majority of the remaining NBA teams do not seem to have much evidence either way, in terms of their bandwagon score. 
 
 
-Conclusion
+Case Study:  Golden State Warriors
 ================================================================================
 
 From our findings above, we can conclude that we are indeed able to accurately model the popularity of NBA teams, as measured by their monthly Google Search history. This model, which contains TV market size, Win/Loss percentage, month of the year, level of success attained in the playoffs, and the interactions between these variables performs quite well in predicting the popularity score of a particular NBA team for a given month. 

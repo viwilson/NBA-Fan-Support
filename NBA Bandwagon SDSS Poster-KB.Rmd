@@ -1,0 +1,251 @@
+---
+title: "Analyzing Fan Support of NBA Teams Over Time"
+author: "Victor Wilson, Eric Tran, and Kelly Bodwin"
+institute: "California Polytechnic State University - San Luis Obispo"
+date: "2019-05-30"
+references:
+  - id: R-base
+    author:
+    - family: "R Core Team"
+      given: ""
+    title: 'R: A Language and Environment for Statistical Computing'
+    issued:
+      year: 2018
+    URL: https://www.r-project.org
+  - id: R-pagedown
+    author:
+    - family: Google Trends
+      given: Google
+    title: ''
+    issued:
+      year: 2019
+    URL: https://trends.google.com/trends/?geo=US
+output:
+  pagedown::poster_jacobs:
+    self_contained: false
+    pandoc_args: --mathjax
+    css: "poster-kelly.css"
+---
+```{r, include=FALSE}
+library(ggplot2)
+library(lubridate)
+library(tidyverse)
+library(dplyr)
+library(gganimate)
+library(car)
+library(stats)
+library(ggridges)
+
+knitr::opts_chunk$set(fig.width = 8, fig.height = 5, fig.align = "center")
+```
+
+
+Introduction
+================================================================================
+
+The term "bandwagon fan" is used in sports to describe "a person who takes part in or becomes enthusiastic about something only when it is popular or fashionable" (Miriam-Webster Dictionary). Overall fan support for a team can vary due to several factors, such as population size of the city in which the team plays and success attained by the team.  Our goal in this study is to **model team popularity** in the NBA based on external factors, and to define a **bandwagon score** based on deviations from model preditions.
+
+
+Research Question {.block}
+================================================================================
+
+Can we measure the "bandwagon" level of a particular NBA team by creating a statistical model to predict popularity, and analyzing the deviations from the model?
+
+Data
+================================================================================
+To measure popularity of NBA Teams over time, we collected information about **search term volume** in the United States from Google Trends. Data is available on a monthly basis from 2004 to present.  
+
+We measure **monthly popularity scores** on a relative scale from 1 to 100, compared to an absolute maximum achieved by the term "Golden State Warriors" in June 2016. We also note that the data only includes searches conducted within in the United States.
+
+This dataset contains **182 observations for each of the 30 NBA teams**.
+
+We also included data from two other datasets: one containing information related to **team performance** such as Win/Loss record for the season and how far the team advanced in the playoffs; and one regarding the **market size for each city**, as measured by Nielsen Ratings.
+
+
+```{r, include=FALSE}
+NBAData <- read.csv("./NBATeams_Final.csv", header = TRUE)
+
+#Converting Date variable to be Date object instead of factor
+NBAData$Date <-ymd(NBAData$Date)
+
+```
+
+```{r, echo=FALSE, include = FALSE}
+NBAData %>%
+  filter(Team == "BostonCeltics") %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) +
+  ggtitle("Boston Celtics Popularity Over Time") + theme(plot.title = element_text(color="blue", size=18, face="bold"))
+```
+
+We see a **yearly cycle** throughout the data, with spikes occurring at around the some point each year (around the start of the NBA season and the beginning of the NBA playoffs), and sharp drop-offs around the same time as well (around the beginning of the NBA off-season).
+
+
+Model
+================================================================================
+
+Our model used multiple regression to **predict the monthly Google Trends popularity score for each NBA team**. The following predictor variables were found to be significant:
+* Market size
+* Month (i.e., stage of the NBA season)
+* Regular season win/loss percentage
+* Playoff success (Did Not Make Playoffs, Lost in 1st Round, etc)
+* Interaction effect between month and win/loss percentage
+* Interaction effect between month and playoff success
+
+The largest coefficients were for `June:WonFinals` and `June:LostFinals`. This makes intuitive sense; teams that make the NBA Finals are associated with a large increase in popularity score in June, compared to teams that are no longer playing in June.
+
+The following plot shows the **predicted popularity (red)** and **true popularity (black)** for the Boston Celtics.
+
+```{r, echo=FALSE}
+NBAData %>%
+  filter(Team == "BostonCeltics" & Date %within% interval("2004-01-01", "2017-12-01")) %>%
+  ggplot() + geom_line(aes(x = Date, y = Popularity)) + geom_line(aes(x = Date, y = Popularity), col = "black", lwd = 1.5) + geom_line(aes(x = Date, y = pred_by_pop), col = "red", lwd = 1.5)+
+  ggtitle(" Boston Celtics Actual vs. Predicted Popularity") + theme(plot.title = element_text(color="black", size=18, face="bold")) + scale_colour_manual(name="Legend", values = c("Actual" = "black", "Predicted" = "red"))
+```
+
+
+
+These **deviations** in the observed popularity score and the predicted popularity score from the model can be viewed as the effect of **fan behavior**, as our model corrects for external factors. 
+
+
+
+Levels of Team Success 
+================================================================================
+
+Our goal is to define bandwagon fanbases to be those that **oversupport** their team when the team is **successful** and **undersupport** when the team is **unsuccessful**.  To this end, we identified three "Success Categories" that teams fall into in a given season:
+
+1. **"Dark Horse":** Teams that either did not make the playoffs or lost in the 1st round
+2. **"Contenders":** Teams that either lost in the Conference Semifinals or Conference Finals
+3. **"Heavy Favorites":** Teams that either lost in the NBA Finals or won the NBA Finals.
+
+These categories were derived from a study of the patterns of fan support relative to the level of team success. The plot below shows the three distinct categories across the six possible playoff outcomes.
+
+```{r, echo=FALSE, message = FALSE}
+plt <- ggplot(NBAData, aes(x = log(Popularity+1), y = Playoffs, fill = Succ_Cat)) + geom_density_ridges(na.rm = TRUE, quantile_lines = TRUE, quantiles = 2, alpha = 0.7) +  theme(axis.text.x=element_text(angle=45, hjust=1)) + 
+  guides(fill = FALSE)
+
+suppressWarnings(print(plt))
+
+```
+
+Our choice of three categories is justifed by an ANOVA test and subsequent Tukey Honest Signficiant difference tests. [report some stats!]
+
+
+Results {.block}
+================================================================================
+
+```{r, include=FALSE}
+#Differences in ratios for Dark Horse
+bwpop_DarkHorse <- NBAData %>% filter(Succ_Cat == "Dark Horse") %>%
+group_by(Team) %>% 
+summarize(DarkHorseDiff = mean(Popularity, na.rm = TRUE)/mean(pred_by_pop, na.rm = TRUE)) %>%
+arrange(DarkHorseDiff)
+bwpop_DarkHorse
+
+#Differences in Ratios for Contenders
+bwpop_Contender <- NBAData %>% filter(Succ_Cat == "Contender") %>%
+group_by(Team) %>% 
+summarize(ContenderDiff = mean(Popularity, na.rm = TRUE)/mean(pred_by_pop, na.rm = TRUE)) %>%
+arrange(ContenderDiff)
+bwpop_Contender
+
+#Differences in Ratios for Favorites
+bwpop_Favorite <- NBAData %>% filter(Succ_Cat == "Heavy Favorite") %>%
+group_by(Team) %>% 
+summarize(FavoriteDiff = mean(Popularity, na.rm = TRUE)/mean(pred_by_pop, na.rm = TRUE)) %>%
+arrange(FavoriteDiff)
+bwpop_Favorite
+
+#Joining Datasets
+BW_Ratio <- bwpop_DarkHorse %>% left_join(bwpop_Contender)
+
+#JoiningDatasets
+BW_Ratio <- BW_Ratio %>% left_join(bwpop_Favorite)
+
+#Changing NA's to be 1 in order to compute differences
+BW_Ratio[is.na(BW_Ratio)] <- 1
+
+BW_Ratio$BWScoreRatio <- (BW_Ratio$FavoriteDiff*BW_Ratio$ContenderDiff)/ BW_Ratio$DarkHorseDiff
+```
+
+
+```{r, echo=FALSE, include = FALSE}
+  
+knitr::kable(BW_Ratio[1:30, c(1,5)], caption = "Bandwagon Score by Team")
+```
+
+The following plot shows the **overall bandwagon scores for each of the 30 NBA Teams**:
+
+```{r, echo=FALSE, fig.height = 6, fig.width = 14}
+BW_Ratio %>% mutate(
+  Team = fct_reorder(Team, BWScoreRatio)
+) %>%
+ggplot(aes(x = Team, y = BWScoreRatio, fill = BWScoreRatio < 1)) + geom_col() + theme(axis.text.x=element_text(angle=45, hjust=1)) + 
+  guides(fill = FALSE) + 
+  geom_hline(yintercept = 1) +
+  ggtitle("Bandwagon scores by team") +
+  xlab("BW Score")
+```
+
+Based on these scores, the **Golden State Warriors** have far and away the highest bandwagon score, while the **Orlando Magic, Dallas Mavericks,** and **Detroit Pistons** have the lowest.
+
+
+Bandwagon Scores {.block}
+================================================================================
+First, we define the **support ratio** for a team in a given year to be:
+
+$$SR = \frac{\text{Mean observed popularity}}{\text{Mean popularity predicted by model}}$$
+
+$SR > 1$ implies fans supported the team more than the model predicts; $SR < 1$ suggest fans undersupported their team in that month.
+
+We then define the **overall bandwagon score** for a team to be a **combination of the average $PR$** in seasons with different levels of team success:
+
+$$BW = \frac{SR_{HeavyFavorite} * SR_{Contender}}{ SR_{DarkHorse}}$$
+
+
+We expect teams with "bandwagon" fans to have popularity **above** the predicted level when the team is performing well (**"Contender"** or **"Heavy Favorite"**), and **below** the predicted level when the team is not performing well (**"Dark Horse"**)
+
+$BW > 1$ indicates bandwagon behavior (higher than predicted support when team is good), while
+
+$BW < 1$ indicates anti-bandwagon behavior (higher than predicted support when team is not good)
+
+
+```{r, echo=FALSE, include = FALSE}
+NBAData %>%
+  filter(Team == "GoldenStateWarriors" & Date %within% interval("2004-01-01", "2018-12-01")) %>%
+  group_by(Season) %>%
+  summarize(
+    SR = mean(Popularity, na.rm = TRUE)/mean(pred_by_pop, na.rm = TRUE),
+    Succ_Cat = Succ_Cat[1],
+    Playoffs = Playoffs[1]
+  ) %>% 
+  ungroup %>%
+  ggplot() + geom_col(aes(x = Season, y = SR, fill = Succ_Cat)) + 
+  ggtitle("Golden State Warriors Support Ratio") + theme(plot.title = element_text(color="black", size=14, face="bold")) +
+  geom_hline(yintercept = 1) + 
+  theme(legend.title = element_blank())
+```
+
+Future Work
+================================================================================
+
+1.  We would also like to apply this research method to other sport leagues within the United States, such as the MLB, the NHL, and the NFL.  
+
+2. Our model did not account for time dependency in the data.  A more nuanced model could be fit using an Auto-regressive (AR) approach. 
+
+
+References
+================================================================================
+
+<div id="refs"></div>
+
+
+
+
+Acknowledgements {data-color=red}
+================================================================================
+
+This poster presentation, as well as costs associated with travel and lodging was supported by the California Polytechnic State University Statistics Department 
+
+I would also like to thank Dr. Kelly Bodwin (Cal Poly) for assistance in advising this research project, as well as Eric Tran (Cal Poly) for providing support and input.
+
+

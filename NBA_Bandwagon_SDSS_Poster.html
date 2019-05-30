@@ -6,7 +6,7 @@
     <meta name="generator" content="pandoc" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="author" content="Victor Wilson, Kelly Bodwin, and Eric Tran" />
+    <meta name="author" content="Victor Wilson, Eric Tran, and Kelly Bodwin" />
     <meta name="date" content="2019-05-30" />
     <title>Analyzing Fan Support of NBA Teams Over Time</title>
 
@@ -22,7 +22,7 @@
 
 <div class="poster-title">
   <h1 class="title">Analyzing Fan Support of NBA Teams Over Time</h1>
-  <h2 class="author">Victor Wilson, Kelly Bodwin, and Eric Tran</h2>
+  <h2 class="author">Victor Wilson, Eric Tran, and Kelly Bodwin</h2>
   <h2 class="institute">California Polytechnic State University - San Luis Obispo</h2>
 </div>
 
@@ -65,7 +65,10 @@ Teams that either lost in the NBA Finals or won the NBA Finals.</p>
 <p>In order to be able to analyze whether certain teams are more prone to the “Bandwagon Effect”, we need to create a quantitative measure of “bandwagonness”. Using the traditional definition of a bandwagon fan, and our three categories of playoff success described above, we are able to create a “bandwagon measure”.</p>
 <p>This method mostly revolves around comparing the predicted popularity scores and observed popularity scores for each playoff success group. Since a bandwagon effect is commonly described as being much more popular than expected when a team is performing well, we can use these measures. For example, if a team’s predicted popularity score is much lower than their observed popularity score when they are performing well, this can be considered as an indicator of the bandwagon effect.</p>
 <p>In order to aggregate these bandwagon scores across the three levels, we create a ratio of the observed popularity score divided by the predicted popularity score for each group, and apply the following formula:</p>
-<p><span class="math display">\[BWOVerall = BWHeavyFavorite + BWContender - BWDarkHorse\]</span></p>
+<p><span class="math display">\[BW_{Overall} = BW_{HeavyFavorite} + BW_{Contender} - BW_{DarkHorse}\]</span></p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
 <table>
 <caption><span id="tab:unnamed-chunk-7">Table 1: </span>Bandwagon Score by Team</caption>
 <thead>
@@ -201,8 +204,8 @@ Teams that either lost in the NBA Finals or won the NBA Finals.</p>
 In the above plot, we we can see that the teams that appear to have the most “Bandwagon” evidence are the Golden State Warriors, and the Oklahoma City Thunder. This means that when these two teams are performing well, they experience much higher popularity scores than predicted, and when they are performing poorly, they experience much lower popularity scores than predicted.</p>
 <p>On the other end of the spectrum, the Milwaukee Bucks seem to have the least evidence of a “Bandwagon” fan base. This largely stems from the fact that the Bucks experienced much larger popularity scores than predicted when they were not performing well. This gives some credibility to the fan base to suggest that they continue to support the Bucks, even when they do not make the playoffs. The majority of the remaining NBA teams do not seem to have much evidence either way, in terms of their bandwagon score.</p>
 </div>
-<div id="conclusion" class="section level1">
-<h1>Conclusion</h1>
+<div id="case-study-golden-state-warriors" class="section level1">
+<h1>Case Study: Golden State Warriors</h1>
 <p>From our findings above, we can conclude that we are indeed able to accurately model the popularity of NBA teams, as measured by their monthly Google Search history. This model, which contains TV market size, Win/Loss percentage, month of the year, level of success attained in the playoffs, and the interactions between these variables performs quite well in predicting the popularity score of a particular NBA team for a given month.</p>
 <p><img src="NBA_Bandwagon_SDSS_Poster_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>Another key takeaway from our model is that the Golden State Warriors by far have the strongest evidence of the “Bandwagon Effect”. In the plot above, the red line represents the predicted popularity scores for the Warriors, while the black line represents their observed popularity scores. We can see that there are several values in which their observed popularity score is much greater than their predicted popularity score. These values all occurred during the playoffs of the last four NBA seasons, in which the Warriors advanced to the NBA Finals each year. Thus, it appears that the Warriors have experienced a huge surge in popularity after their recent success.</p>
